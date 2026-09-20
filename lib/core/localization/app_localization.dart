@@ -2,7 +2,7 @@
 // USMA — App Localization Service
 // app_localization.dart
 //
-// Structured Multilingual Localization (English, Hindi, Odia)
+// Structured Multilingual Localization (English, Hindi, Odia, Santali Ol Chiki, Gondi, Bhili)
 // Supporting core student screens:
 //   - Bottom Navigation (MainScaffold)
 //   - Settings Screen
@@ -13,42 +13,45 @@ class AppLocalization {
   static const String langEnglish = 'en';
   static const String langHindi = 'hi';
   static const String langOdia = 'or';
+  static const String langSantali = 'sat';
+  static const String langGondi = 'gon';
+  static const String langBhili = 'bhb';
 
   static const List<String> supportedLanguages = [
     langEnglish,
     langHindi,
     langOdia,
+    langSantali,
+    langGondi,
+    langBhili,
   ];
 
   static const Map<String, String> languageNames = {
     'en': 'English',
     'hi': 'हिन्दी (Hindi)',
     'or': 'ଓଡ଼ିଆ (Odia)',
-    'sat': 'ᱥᱟᱱᱛᱟᱲᱤ (Santhali)',
-    'te': 'తెలుగు (Telugu)',
-    'bn': 'বাংলা (Bengali)',
+    'sat': 'ᱥᱟᱱᱛᱟᱲᱤ (Santali - Ol Chiki)',
+    'gon': 'Gondi (गोंडी)',
+    'bhb': 'Bhili (भीली)',
   };
 
   static const Map<String, String> languageCodeFromDisplay = {
     'English': 'en',
     'हिन्दी (Hindi)': 'hi',
-    'ਓਡੀଆ (Odia)': 'or',
     'ଓଡ଼ିଆ (Odia)': 'or',
-    'ᱥᱟᱱᱛᱟᱲᱤ (Santhali)': 'sat',
-    'తెలుగు (Telugu)': 'te',
-    'বাংলা (Bengali)': 'bn',
+    'ᱥᱟᱱᱛᱟᱲᱤ (Santali - Ol Chiki)': 'sat',
+    'Gondi (गोंडी)': 'gon',
+    'Bhili (भीली)': 'bhb',
   };
 
   static const Map<String, Map<String, String>> _strings = {
     langEnglish: {
-      // Navigation
       'nav_home': 'Home',
       'nav_schemes': 'Schemes',
       'nav_wallet': 'Wallet',
       'nav_dbt': 'DBT',
       'nav_saathi': 'Saathi AI',
 
-      // Settings
       'settings_title': 'App Settings',
       'settings_accessibility': 'Accessibility & Language',
       'settings_display_language': 'App Display Language',
@@ -60,9 +63,8 @@ class AppLocalization {
       'settings_terms': 'Terms & Ministry Guidelines',
       'settings_terms_val': 'Ministry of Tribal Affairs • Government of India',
       'settings_coverage_notice': 'Multilingual Coverage Notice',
-      'settings_coverage_desc': 'Translated screens: Navigation, Settings, Dashboard, and JAGO AI Assistant. Other sections currently display in English.',
+      'settings_coverage_desc': 'Translated screens: Navigation, Settings, Dashboard, and JAGO AI Assistant.',
 
-      // Dashboard
       'dash_welcome': 'Welcome back',
       'dash_quick_actions': 'Quick Actions',
       'dash_unified_verification': 'Unified Verification',
@@ -80,14 +82,12 @@ class AppLocalization {
       'dash_recommended_schemes': 'Recommended Schemes for You',
     },
     langHindi: {
-      // Navigation
       'nav_home': 'होम',
       'nav_schemes': 'योजनाएं',
       'nav_wallet': 'वॉलेट',
       'nav_dbt': 'डीबीटी (DBT)',
       'nav_saathi': 'साथी AI',
 
-      // Settings
       'settings_title': 'ऐप सेटिंग्स',
       'settings_accessibility': 'सुगमता एवं भाषा',
       'settings_display_language': 'ऐप प्रदर्शन भाषा',
@@ -99,9 +99,8 @@ class AppLocalization {
       'settings_terms': 'नियम एवं मंत्रालय दिशानिर्देश',
       'settings_terms_val': 'जनजातीय कार्य मंत्रालय • भारत सरकार',
       'settings_coverage_notice': 'बहुभाषी कवरेज सूचना',
-      'settings_coverage_desc': 'अनुवादित स्क्रीन: नेविगेशन, सेटिंग्स, डैशबोर्ड, और जागो AI सहायक। अन्य खंड वर्तमान में अंग्रेजी में प्रदर्शित हैं।',
+      'settings_coverage_desc': 'अनुवादित स्क्रीन: नेविगेशन, सेटिंग्स, डैशबोर्ड, और जागो AI सहायक।',
 
-      // Dashboard
       'dash_welcome': 'वापसी पर स्वागत है',
       'dash_quick_actions': 'त्वरित कार्य',
       'dash_unified_verification': 'एकीकृत सत्यापन',
@@ -119,14 +118,12 @@ class AppLocalization {
       'dash_recommended_schemes': 'आपके लिए अनुशंसित योजनाएं',
     },
     langOdia: {
-      // Navigation
       'nav_home': 'ମୁଖ୍ୟ ପୃଷ୍ଠା',
       'nav_schemes': 'ଯୋଜନାସମୂହ',
       'nav_wallet': 'ୱାଲେଟ୍',
       'nav_dbt': 'ଡିବିଟି (DBT)',
       'nav_saathi': 'ସାଥୀ AI',
 
-      // Settings
       'settings_title': 'ଆପ୍ ସେଟିଙ୍ଗ୍ସ',
       'settings_accessibility': 'ସୁବିଧା ଓ ଭାଷା',
       'settings_display_language': 'ଆପ୍ ପ୍ରଦର୍ଶନ ଭାଷା',
@@ -138,9 +135,8 @@ class AppLocalization {
       'settings_terms': 'ନିୟମାବଳୀ ଓ ମନ୍ତ୍ରଣାଳୟ ମାର୍ଗଦର୍ଶିକା',
       'settings_terms_val': 'ଆଦିବାସୀ ବ୍ୟାପାର ମନ୍ତ୍ରଣାଳୟ • ଭାରତ ସରକାର',
       'settings_coverage_notice': 'ବହୁଭାଷୀ କଭରେଜ୍ ସୂଚନା',
-      'settings_coverage_desc': 'ଅନୁବାଦିତ ପୃଷ୍ଠା: ନେଭିଗେସନ୍, ସେଟିଙ୍ଗ୍ସ, ଡ୍ୟାସବୋର୍ଡ, ଏବଂ ଜାଗୋ AI ସହାୟକ। ଅନ୍ୟାନ୍ୟ ବିଭାଗ ବର୍ତ୍ତମାନ ଇଂରାଜୀରେ ପ୍ରଦର୍ଶିତ।',
+      'settings_coverage_desc': 'ଅନୁବାଦିତ ପୃଷ୍ଠା: ନେଭିଗେସନ୍, ସେଟିଙ୍ଗ୍ସ, ଡ୍ୟାସବୋର୍ଡ, ଏବଂ ଜାଗୋ AI ସହାୟକ।',
 
-      // Dashboard
       'dash_welcome': 'ସ୍ୱାଗତମ୍',
       'dash_quick_actions': 'ଦ୍ରୁତ କାର୍ଯ୍ୟାନୁଷ୍ଠାନ',
       'dash_unified_verification': 'ଏକୀକୃତ ଯାଞ୍ଚ',
@@ -156,6 +152,114 @@ class AppLocalization {
       'dash_deficiency_center': 'ତ୍ରୁଟି ସଂଶୋଧନ କେନ୍ଦ୍ର',
       'dash_action_required': 'ପଦକ୍ଷେପ ଆବଶ୍ୟକ',
       'dash_recommended_schemes': 'ଆପଣଙ୍କ ପାଇଁ ସୁପାରିଶ କରାଯାଇଥିବା ଯୋଜନା',
+    },
+    langSantali: {
+      'nav_home': 'ᱚᱲᱟᱜ (Home)',
+      'nav_schemes': ' আঁচᱷ (Schemes)',
+      'nav_wallet': 'ᱛᱷᱚᱞᱤ (Wallet)',
+      'nav_dbt': 'DBT (ᱴᱟᱠᱟ)',
+      'nav_saathi': 'ᱡᱟᱜᱚ AI',
+
+      'settings_title': 'ᱮᱯ ᱥᱟᱡᱟᱣ (Settings)',
+      'settings_accessibility': 'ᱯᱟᱹᱨᱥᱤ ᱟᱨ ᱥᱩᱵᱤᱫᱷᱟ',
+      'settings_display_language': 'ᱩᱫᱩᱜ ᱯᱟᱹᱨᱥᱤ',
+      'settings_dark_mode': 'ᱧᱩᱛ ᱢᱚᱰ',
+      'settings_dark_mode_sub': 'ᱢᱮᱫ ᱨᱮᱭᱟᱜ ᱠᱚᱥᱴᱚ ᱠᱚᱢᱟᱣ',
+      'settings_about': 'ᱢᱚᱱᱛᱨᱟᱞᱚᱭ ᱵᱟᱵᱚᱛ',
+      'settings_version': 'ᱮᱯ ᱵᱷᱟᱨᱥᱚᱱ',
+      'settings_version_val': 'USMA v1.0.0+1',
+      'settings_terms': 'ᱱᱤᱭᱚᱢ ᱟᱨ ᱫᱤᱥᱟᱹ ᱩᱫᱩᱜ',
+      'settings_terms_val': 'ᱡᱟᱱᱡᱟᱛᱤᱭᱟᱹ ᱠᱟᱹᱢᱤ ᱢᱚᱱᱛᱨᱟᱞᱚᱭ • ᱵᱷᱟᱨᱚᱛ ᱥᱚᱨᱠᱟᱨ',
+      'settings_coverage_notice': 'ᱥᱟᱱᱛᱟᱲᱤ ᱚᱞ ᱪᱤᱠᱤ ᱩᱫᱩᱜ',
+      'settings_coverage_desc': 'ᱱᱚᱣᱟ ᱫᱚ ᱥᱟᱱᱛᱟᱲᱤ ᱚᱞ ᱪᱤᱠᱤ ᱛᱮ ᱛᱚᱨᱡᱚᱢᱟ ᱠᱟᱱᱟ (Draft).',
+
+      'dash_welcome': 'ᱡᱚᱦᱟᱨ',
+      'dash_quick_actions': 'ᱞᱚᱜᱚᱱ ᱠᱟᱹᱢᱤ',
+      'dash_unified_verification': 'ᱡᱚᱛᱚ ᱡᱟᱭᱜᱟ ᱨᱮᱭᱟᱜ ᱯᱚᱨᱢᱟᱬ',
+      'dash_unified_verification_sub': 'Multi-Source Status',
+      'dash_officer_analytics': 'ᱚᱯᱷᱤᱥᱚᱨ ᱠᱟᱹᱢᱤ',
+      'dash_officer_analytics_sub': 'Coverage Gap Matrix',
+      'dash_statutory_check': 'ᱱᱤᱭᱚᱢ ᱡᱟᱸᱪ',
+      'dash_eligibility_engine': 'ᱡᱚᱜᱽᱭᱚᱛᱟ ᱤᱧᱡᱤᱱ',
+      'dash_apply_scholarship': 'ᱥᱠᱚᱞᱟᱨᱥᱤᱯ ᱞᱟᱹᱜᱤᱫ ᱫᱚᱨᱠᱷᱟᱥᱛ',
+      'dash_explore_schemes': 'ᱢᱚᱬᱮ ᱜᱚᱴᱟᱝ MoTA ᱠᱟᱹᱢᱤᱦᱚᱨᱟ',
+      'dash_active_applications': 'ᱪᱟᱹᱞᱩ ᱟᱠᱟᱱ ᱫᱚᱨᱠᱷᱟᱥᱛ',
+      'dash_dbt_tracker': 'DBT ᱴᱨᱟᱠᱚᱨ',
+      'dash_deficiency_center': 'ᱠᱷᱟᱹᱢᱛᱤ ᱥᱩᱫᱷᱨᱟᱹᱣ ᱴᱷᱟᱶ',
+      'dash_action_required': 'ᱠᱟᱹᱢᱤ ᱞᱟᱹᱠᱛᱤ ᱢᱮᱱᱟᱜ-ᱟ',
+      'dash_recommended_schemes': 'ᱟᱢ ᱞᱟᱹᱜᱤᱫ ᱥᱠᱤᱢ',
+    },
+    langGondi: {
+      'nav_home': 'घर (Home)',
+      'nav_schemes': 'योजना (Schemes)',
+      'nav_wallet': 'बटुआ (Wallet)',
+      'nav_dbt': 'DBT (रुपया)',
+      'nav_saathi': 'जागो AI',
+
+      'settings_title': 'ऐप सेटिंग्स',
+      'settings_accessibility': 'गोंडी भाषा एवं सुगमता (Unreviewed)',
+      'settings_display_language': 'भाषा चुनिए',
+      'settings_dark_mode': 'डार्क मोड',
+      'settings_dark_mode_sub': 'आँख के सुरक्षा',
+      'settings_about': 'मंत्रालय बारे में',
+      'settings_version': 'वर्जन',
+      'settings_version_val': 'USMA v1.0.0+1',
+      'settings_terms': 'नियम',
+      'settings_terms_val': 'जनजातीय कार्य मंत्रालय',
+      'settings_coverage_notice': 'गोंडी भाषा सूचना',
+      'settings_coverage_desc': 'गोंडी भाषा अनुवाद समीक्षाधीन है (Needs community review).',
+
+      'dash_welcome': 'सेवा जोहार',
+      'dash_quick_actions': 'जल्दी काम',
+      'dash_unified_verification': 'सत्यापन',
+      'dash_unified_verification_sub': 'सब स्रोत से जांच',
+      'dash_officer_analytics': 'अधिकारी विश्लेषण',
+      'dash_officer_analytics_sub': 'अंतर विश्लेषण',
+      'dash_statutory_check': 'नियम जांच',
+      'dash_eligibility_engine': 'पात्रता जांच',
+      'dash_apply_scholarship': 'छात्रवृत्ति अर्जी',
+      'dash_explore_schemes': '5 योजना देखो',
+      'dash_active_applications': 'चालू अर्जी',
+      'dash_dbt_tracker': 'DBT खाता',
+      'dash_deficiency_center': 'सुधार केंद्र',
+      'dash_action_required': 'काम जरूरी',
+      'dash_recommended_schemes': 'आपके योजना',
+    },
+    langBhili: {
+      'nav_home': 'घर (Home)',
+      'nav_schemes': 'योजना (Schemes)',
+      'nav_wallet': 'झोली (Wallet)',
+      'nav_dbt': 'DBT',
+      'nav_saathi': 'जागो AI',
+
+      'settings_title': 'सेटिंग',
+      'settings_accessibility': 'भीली भाषा (Unreviewed)',
+      'settings_display_language': 'भाषा',
+      'settings_dark_mode': 'काळो मोड',
+      'settings_dark_mode_sub': 'आँख बचाओ',
+      'settings_about': 'मंत्रालय',
+      'settings_version': 'वर्जन',
+      'settings_version_val': 'USMA v1.0.0+1',
+      'settings_terms': 'नियम',
+      'settings_terms_val': 'जनजातीय कार्य मंत्रालय',
+      'settings_coverage_notice': 'भीली सूचना',
+      'settings_coverage_desc': 'भीली भाषा अनुवाद समीक्षाधीन है (Needs community review).',
+
+      'dash_welcome': 'राम राम',
+      'dash_quick_actions': 'काम',
+      'dash_unified_verification': 'जांच',
+      'dash_unified_verification_sub': 'सत्यापन',
+      'dash_officer_analytics': 'अधिकारी',
+      'dash_officer_analytics_sub': 'गैप',
+      'dash_statutory_check': 'नियम',
+      'dash_eligibility_engine': 'पात्रता',
+      'dash_apply_scholarship': 'अर्जी लगाओ',
+      'dash_explore_schemes': '5 योजना',
+      'dash_active_applications': 'अर्जी',
+      'dash_dbt_tracker': 'पैसा',
+      'dash_deficiency_center': 'कमी सुधार',
+      'dash_action_required': 'जरूरी काम',
+      'dash_recommended_schemes': 'योजना',
     },
   };
 
