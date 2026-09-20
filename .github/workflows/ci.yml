@@ -1,0 +1,53 @@
+name: USMA CI & Quality Gates
+
+on:
+  push:
+    branches: [ main, 'phase-*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  flutter-quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Flutter Analyze
+        run: flutter analyze
+
+      - name: Run Full Test Suite
+        run: flutter test --coverage
+
+  security-rules-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify Rules Files Exist
+        run: |
+          test -f firestore.rules
+          test -f storage.rules
+          test -f firebase.json
