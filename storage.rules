@@ -1,0 +1,52 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isAuth() && request.auth.token.role == 'admin';
+    }
+
+    function isMinistryOfficer() {
+      return isAuth() && request.auth.token.role == 'ministry_officer';
+    }
+
+    function isStateOfficer() {
+      return isAuth() && request.auth.token.role == 'state_officer';
+    }
+
+    function isInstitutionVerifier() {
+      return isAuth() && request.auth.token.role == 'institution_verifier';
+    }
+
+    function isOfficerOrAdmin() {
+      return isAdmin() || isMinistryOfficer() || isStateOfficer() || isInstitutionVerifier();
+    }
+
+    // Default deny all paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // Student document vault uploads
+    // Max 5 MB, PDF or JPEG or PNG only
+    match /users/{uid}/documents/{fileName} {
+      allow read: if isOwner(uid) || isOfficerOrAdmin();
+      
+      allow write: if isOwner(uid) &&
+        request.resource.size <= 5 * 1024 * 1024 &&
+        (
+          request.resource.contentType == 'application/pdf' ||
+          request.resource.contentType == 'image/jpeg' ||
+          request.resource.contentType == 'image/png'
+        );
+    }
+  }
+}

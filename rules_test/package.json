@@ -1,0 +1,14 @@
+{
+  "name": "usma-rules-tests",
+  "version": "1.0.0",
+  "description": "Firestore and Storage security rules test suite for USMA",
+  "main": "rules.test.js",
+  "scripts": {
+    "test": "mocha rules.test.js --timeout 10000 --exit"
+  },
+  "dependencies": {
+    "@firebase/rules-unit-testing": "^3.0.1",
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0"
+  }
+}

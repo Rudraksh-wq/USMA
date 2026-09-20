@@ -1,78 +1,352 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Function to check if user has admin/officer role claims
-    function isOfficerOrAdmin() {
-      return request.auth != null && (
-        request.auth.token.role == 'admin' ||
-        request.auth.token.role == 'ministry_officer' ||
-        request.auth.token.role == 'state_officer' ||
-        request.auth.token.role == 'institution_verifier'
-      );
+
+    // =========================================================================
+    // AUTH & ROLE HELPER FUNCTIONS
+    // =========================================================================
+
+    function isAuth() {
+      return request.auth != null;
     }
 
-    // User Profile: Only the student or officer can read; student can update own details
+    function isUser(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    function getUserRole() {
+      return isAuth() && ('role' in request.auth.token) ? request.auth.token.role : 'student';
+    }
+
+    function isAdmin() {
+      return isAuth() && request.auth.token.role == 'admin';
+    }
+
+    function isMinistryOfficer() {
+      return isAuth() && request.auth.token.role == 'ministry_officer';
+    }
+
+    function isStateOfficer() {
+      return isAuth() && request.auth.token.role == 'state_officer';
+    }
+
+    function isInstitutionVerifier() {
+      return isAuth() && request.auth.token.role == 'institution_verifier';
+    }
+
+    function isOfficerOrAdmin() {
+      return isAdmin() || isMinistryOfficer() || isStateOfficer() || isInstitutionVerifier();
+    }
+
+    // Scoping helpers
+    function isScopedStateOfficer(state) {
+      return isAdmin() || isMinistryOfficer() || 
+        (isStateOfficer() && ('state' in request.auth.token) && request.auth.token.state == state);
+    }
+
+    function isScopedInstitutionVerifier(institutionId) {
+      return isAdmin() || isMinistryOfficer() || 
+        (isInstitutionVerifier() && ('institutionId' in request.auth.token) && request.auth.token.institutionId == institutionId);
+    }
+
+    function isScopedOfficerForUser(userData) {
+      return isAdmin() || isMinistryOfficer() ||
+        (isStateOfficer() && ('state' in request.auth.token) && ('state' in userData) && request.auth.token.state == userData.state) ||
+        (isInstitutionVerifier() && ('institutionId' in request.auth.token) && ('institutionId' in userData) && request.auth.token.institutionId == userData.institutionId);
+    }
+
+    // Validation helpers
+    function isValidString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isValidStatus(status) {
+      return status in [
+        'Draft', 'Submitted', 'InstituteVerified', 'StateApproved', 
+        'Sanctioned', 'Disbursed', 'Returned', 'Resubmitted', 'Rejected', 'Withdrawn'
+      ];
+    }
+
+    // =========================================================================
+    // USERS COLLECTION
+    // =========================================================================
     match /users/{uid} {
-      allow read: if request.auth != null && (request.auth.uid == uid || isOfficerOrAdmin());
-      allow write: if request.auth != null && request.auth.uid == uid;
-      
-      match /{subcollection}/{docId} {
-        allow read: if request.auth != null && (request.auth.uid == uid || isOfficerOrAdmin());
-        allow write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isUser(uid) || (isOfficerOrAdmin() && resource != null && isScopedOfficerForUser(resource.data));
+
+      // Students cannot set protected fields on creation
+      allow create: if isUser(uid) &&
+        !request.resource.data.keys().hasAny([
+          'role', 'stCategory', 'isVerified', 'verifiedBy', 'verifiedAt', 'scholarshipStatus'
+        ]);
+
+      // Students cannot modify role, ST caste certification status, or verification flags
+      allow update: if (isUser(uid) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'role', 'stCategory', 'isVerified', 'verifiedBy', 'verifiedAt', 'scholarshipStatus'
+        ])) || (isAdmin() || (isStateOfficer() && isScopedOfficerForUser(resource.data) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'stCategory', 'isVerified', 'verifiedBy', 'verifiedAt', 'updatedAt'
+          ])));
+
+      allow delete: if false;
+
+      // Explicit subcollections (replaces vulnerable wildcard rule)
+      match /devices/{deviceId} {
+        allow read, write: if isUser(uid);
+      }
+
+      match /consents/{consentId} {
+        allow read, write: if isUser(uid);
+      }
+
+      match /history/{historyId} {
+        allow read: if isUser(uid);
+        allow write: if false;
       }
     }
 
-    // Scholarship Applications: Owned by student; verifiers can read and update verification status
+    // =========================================================================
+    // APPLICATIONS COLLECTION
+    // =========================================================================
     match /applications/{applicationId} {
-      allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isOfficerOrAdmin()
+      // Read access: Student owner or scoped officer
+      allow read: if isAuth() && (
+        (resource != null && resource.data.userId == request.auth.uid) ||
+        (resource != null && (
+          isScopedInstitutionVerifier(resource.data.institutionId) ||
+          isScopedStateOfficer(resource.data.state) ||
+          isMinistryOfficer() ||
+          isAdmin()
+        ))
       );
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isOfficerOrAdmin()
+
+      // Create: Only authenticated students creating for themselves with Draft or Submitted status
+      allow create: if isAuth() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.status in ['Draft', 'Submitted'] &&
+        isValidString(request.resource.data.schemeId, 2, 50);
+
+      // Update: Strict state transition table enforced
+      allow update: if isAuth() && resource != null && (
+        // 1. Student edits in Draft or Returned state
+        (
+          resource.data.userId == request.auth.uid &&
+          (
+            // Draft -> Draft or Draft -> Submitted
+            (resource.data.status == 'Draft' && request.resource.data.status in ['Draft', 'Submitted']) ||
+            // Returned -> Returned or Returned -> Resubmitted
+            (resource.data.status == 'Returned' && request.resource.data.status in ['Returned', 'Resubmitted']) ||
+            // Withdraw application
+            (resource.data.status in ['Draft', 'Submitted', 'Returned'] && request.resource.data.status == 'Withdrawn')
+          ) &&
+          // Cannot alter officer fields or change ownership
+          request.resource.data.userId == resource.data.userId &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'reviewedBy', 'reviewedAt', 'sanctionedAt', 'sanctionRemarks', 
+            'instituteRemarks', 'stateRemarks', 'disbursementAmount'
+          ])
+        ) ||
+
+        // 2. Institution Verifier: Submitted/Resubmitted -> InstituteVerified | Returned | Rejected
+        (
+          isInstitutionVerifier() &&
+          isScopedInstitutionVerifier(resource.data.institutionId) &&
+          resource.data.status in ['Submitted', 'Resubmitted'] &&
+          request.resource.data.status in ['InstituteVerified', 'Returned', 'Rejected'] &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'remarks', 'instituteRemarks', 'reviewedBy', 'reviewedAt', 'updatedAt', 'verificationStages'
+          ]) &&
+          request.resource.data.reviewedBy == request.auth.uid
+        ) ||
+
+        // 3. State Officer: InstituteVerified -> StateApproved | Returned | Rejected
+        (
+          isStateOfficer() &&
+          isScopedStateOfficer(resource.data.state) &&
+          resource.data.status == 'InstituteVerified' &&
+          request.resource.data.status in ['StateApproved', 'Returned', 'Rejected'] &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'remarks', 'stateRemarks', 'reviewedBy', 'reviewedAt', 'updatedAt', 'verificationStages'
+          ]) &&
+          request.resource.data.reviewedBy == request.auth.uid
+        ) ||
+
+        // 4. Ministry Officer / Admin: StateApproved -> Sanctioned | Rejected
+        (
+          (isMinistryOfficer() || isAdmin()) &&
+          resource.data.status == 'StateApproved' &&
+          request.resource.data.status in ['Sanctioned', 'Rejected'] &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'remarks', 'sanctionRemarks', 'sanctionedAt', 'reviewedBy', 'reviewedAt', 'updatedAt', 'verificationStages'
+          ]) &&
+          request.resource.data.reviewedBy == request.auth.uid
+        )
       );
-      allow delete: if false; // Government applications must preserve audit trail
+
+      // Audit trail preservation: Applications cannot be deleted
+      allow delete: if false;
     }
 
-    // Document Vault: Sensitive government proofs (Caste, Income, Marksheet)
+    // =========================================================================
+    // DOCUMENTS COLLECTION
+    // =========================================================================
     match /documents/{documentId} {
-      allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isOfficerOrAdmin()
+      allow read: if isAuth() && resource != null && (
+        resource.data.userId == request.auth.uid ||
+        isScopedInstitutionVerifier(resource.data.institutionId) ||
+        isScopedStateOfficer(resource.data.state) ||
+        isMinistryOfficer() ||
+        isAdmin()
       );
-      allow write: if request.auth != null && (
-        request.resource.data.userId == request.auth.uid || resource.data.userId == request.auth.uid
+
+      // Student uploads document: cannot self-verify
+      allow create: if isAuth() &&
+        request.resource.data.userId == request.auth.uid &&
+        (
+          !request.resource.data.keys().hasAny(['verificationStatus', 'verifiedBy', 'verifiedAt']) ||
+          request.resource.data.verificationStatus in ['PENDING', 'pending', 'UPLOADED']
+        );
+
+      // Update:
+      // Students can only update document metadata while not verified/linked, NEVER verificationStatus
+      // Officers can only update verificationStatus, verifiedBy, verifiedAt, verifierRemarks
+      allow update: if isAuth() && resource != null && (
+        (
+          resource.data.userId == request.auth.uid &&
+          resource.data.verificationStatus != 'VERIFIED' &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'verificationStatus', 'verifiedBy', 'verifiedAt', 'verifierRemarks'
+          ]) &&
+          request.resource.data.userId == resource.data.userId
+        ) ||
+        (
+          isOfficerOrAdmin() &&
+          (
+            isScopedInstitutionVerifier(resource.data.institutionId) ||
+            isScopedStateOfficer(resource.data.state) ||
+            isMinistryOfficer() ||
+            isAdmin()
+          ) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'verificationStatus', 'verifiedBy', 'verifiedAt', 'verifierRemarks', 'updatedAt'
+          ]) &&
+          request.resource.data.verifiedBy == request.auth.uid
+        )
       );
+
+      // No deletion if document is linked to a submitted application or verified
+      allow delete: if isAuth() && resource != null &&
+        resource.data.userId == request.auth.uid &&
+        (!('isLinked' in resource.data) || resource.data.isLinked == false) &&
+        (!('verificationStatus' in resource.data) || resource.data.verificationStatus != 'VERIFIED');
     }
 
-    // DBT Disbursements: Read-only for student; writable only by backend / PFMS webhook service
+    // =========================================================================
+    // DISBURSEMENTS COLLECTION (PFMS / DBT)
+    // =========================================================================
     match /disbursements/{disbursementId} {
-      allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isOfficerOrAdmin()
+      // Read access: Student recipient or authorized state/ministry officer
+      allow read: if isAuth() && resource != null && (
+        resource.data.userId == request.auth.uid ||
+        isScopedStateOfficer(resource.data.state) ||
+        isMinistryOfficer() ||
+        isAdmin()
       );
-      allow write: if isOfficerOrAdmin();
+
+      // ZERO client writes. Only Cloud Functions / Admin SDK (e.g. PFMS webhook) can write disbursements.
+      allow write: if false;
     }
 
-    // Deficiencies: Action items raised by verification officers
+    // =========================================================================
+    // DEFICIENCIES COLLECTION
+    // =========================================================================
     match /deficiencies/{deficiencyId} {
-      allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isOfficerOrAdmin()
+      allow read: if isAuth() && resource != null && (
+        resource.data.userId == request.auth.uid ||
+        isScopedInstitutionVerifier(resource.data.institutionId) ||
+        isScopedStateOfficer(resource.data.state) ||
+        isMinistryOfficer() ||
+        isAdmin()
       );
-      allow write: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isOfficerOrAdmin()
+
+      // Only officers can create deficiencies
+      allow create: if isOfficerOrAdmin() &&
+        (
+          isScopedInstitutionVerifier(request.resource.data.institutionId) ||
+          isScopedStateOfficer(request.resource.data.state) ||
+          isMinistryOfficer() ||
+          isAdmin()
+        ) &&
+        isValidString(request.resource.data.description, 5, 1000);
+
+      // Update:
+      // Students can ONLY provide response text and attachments
+      // Officers can close or resolve deficiency
+      allow update: if isAuth() && resource != null && (
+        (
+          resource.data.userId == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'studentResponse', 'responseAttachments', 'respondedAt', 'updatedAt'
+          ])
+        ) ||
+        (
+          isOfficerOrAdmin() &&
+          (
+            isScopedInstitutionVerifier(resource.data.institutionId) ||
+            isScopedStateOfficer(resource.data.state) ||
+            isMinistryOfficer() ||
+            isAdmin()
+          ) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'officerRemarks', 'resolvedAt', 'updatedAt'
+          ])
+        )
       );
+
+      // Only officers can close/delete, students cannot delete
+      allow delete: if false;
     }
 
-    // Official Scheme Catalog: Publicly readable for authenticated users; write-protected
+    // =========================================================================
+    // SCHEMES CATALOG
+    // =========================================================================
     match /schemes/{schemeId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.token.role == 'admin';
+      allow read: if isAuth();
+      allow write: if isAdmin();
     }
 
-    // Notifications: User-scoped
+    // =========================================================================
+    // NOTIFICATIONS
+    // =========================================================================
     match /notifications/{notificationId} {
-      allow read, update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read: if isAuth() && resource != null && resource.data.userId == request.auth.uid;
       allow create: if isOfficerOrAdmin();
+      // Students may ONLY flip read status
+      allow update: if isAuth() && resource != null &&
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'read', 'isRead', 'readAt', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // =========================================================================
+    // MANUAL REVIEWS (FOR INTEGRATION MISMATCHES)
+    // =========================================================================
+    match /manual_reviews/{reviewId} {
+      allow read: if isOfficerOrAdmin() && resource != null && (
+        isScopedInstitutionVerifier(resource.data.institutionId) ||
+        isScopedStateOfficer(resource.data.state) ||
+        isMinistryOfficer() ||
+        isAdmin()
+      );
+      // Created by backend integration service or officer
+      allow create: if isOfficerOrAdmin();
+      allow update: if isOfficerOrAdmin() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'resolutionNotes', 'resolvedBy', 'resolvedAt', 'updatedAt'
+        ]) &&
+        request.resource.data.resolvedBy == request.auth.uid;
       allow delete: if false;
     }
   }
