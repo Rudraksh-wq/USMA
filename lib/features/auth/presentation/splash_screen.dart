@@ -42,24 +42,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 96,
-                height: 96,
+                width: 88,
+                height: 88,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   shape: BoxShape.circle,
-                  boxShadow: AppShadows.elevated,
+                  border: Border.all(color: AppColors.border, width: 1.5),
                 ),
                 child: const Center(
                   child: Icon(
                     Icons.school_rounded,
-                    size: 52,
+                    size: 44,
                     color: AppColors.primary,
                   ),
                 ),
@@ -68,9 +68,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               const Text(
                 'USMA',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: 2,
                 ),
               ),
@@ -78,7 +78,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               const Text(
                 'Unified Scholarship Mobile Application',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: AppColors.textSecondary,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -90,13 +90,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   vertical: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: AppColors.surfaceVariant,
                   borderRadius: BorderRadius.circular(AppRadius.full),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: const Text(
-                  'Ministry of Tribal Affairs (MoTA) • Govt. of India',
+                  'Ministry of Tribal Affairs • Government of India',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -107,8 +108,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
                 ),
               ),
             ],

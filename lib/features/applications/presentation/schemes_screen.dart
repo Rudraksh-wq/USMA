@@ -47,9 +47,10 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? AppColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+            border: const Border(top: BorderSide(color: AppColors.border)),
           ),
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
@@ -76,11 +77,11 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
                       children: [
                         Text(
                           scheme.schemeName,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 2),
                         const Text(
-                          'Source: Ministry of Tribal Affairs',
+                          'Ministry of Tribal Affairs',
                           style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600),
                         ),
                       ],
@@ -89,12 +90,12 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
                   _buildStatusChip(eval.status),
                 ],
               ),
-              const SizedBox(height: AppSpacing.lg),
-              const Divider(),
               const SizedBox(height: AppSpacing.md),
+              const Divider(),
+              const SizedBox(height: AppSpacing.sm),
               const Text(
                 'Evaluation Summary',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
               ),
               const SizedBox(height: AppSpacing.sm),
               if (eval.passedCriteria.isNotEmpty) ...[
@@ -104,7 +105,7 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.check_circle, color: AppColors.success, size: 16),
+                        const Icon(Icons.check_circle_outline_rounded, color: AppColors.success, size: 16),
                         const SizedBox(width: 8),
                         Expanded(child: Text(p, style: const TextStyle(fontSize: 12, color: AppColors.textPrimary))),
                       ],
@@ -118,7 +119,7 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.cancel, color: AppColors.error, size: 16),
+                        const Icon(Icons.cancel_outlined, color: AppColors.error, size: 16),
                         const SizedBox(width: 8),
                         Expanded(child: Text(f, style: const TextStyle(fontSize: 12, color: AppColors.error))),
                       ],
@@ -130,9 +131,9 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: AppColors.warningBg.withValues(alpha: 0.5),
+                    color: AppColors.warningBg,
                     borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,12 +142,12 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
                         children: [
                           Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 16),
                           SizedBox(width: 6),
-                          Text('Missing Verification Documents:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
+                          Text('Required Documents Needed:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.warning)),
                         ],
                       ),
                       const SizedBox(height: 4),
                       for (final doc in eval.missingDocuments)
-                        Text('• $doc', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        Text('• $doc', style: const TextStyle(fontSize: 12, color: AppColors.textPrimary)),
                     ],
                   ),
                 ),
@@ -191,32 +192,32 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
         bg = AppColors.successBg;
         text = AppColors.success;
         label = 'Eligible';
-        icon = Icons.check_circle_outline;
+        icon = Icons.check_circle_outline_rounded;
         break;
       case EligibilityStatus.conditionallyEligible:
         bg = AppColors.warningBg;
         text = AppColors.warning;
         label = 'Conditional';
-        icon = Icons.info_outline;
+        icon = Icons.info_outline_rounded;
         break;
       case EligibilityStatus.ineligible:
         bg = AppColors.errorBg;
         text = AppColors.error;
         label = 'Ineligible';
-        icon = Icons.highlight_off;
+        icon = Icons.highlight_off_rounded;
         break;
       case EligibilityStatus.incompleteProfile:
       case EligibilityStatus.needsInfo:
         bg = AppColors.surfaceVariant;
         text = AppColors.textSecondary;
         label = 'Check Needed';
-        icon = Icons.help_outline;
+        icon = Icons.help_outline_rounded;
         break;
       case EligibilityStatus.blockedByExistingAward:
-        bg = Colors.deepOrange.withValues(alpha: 0.15);
-        text = Colors.deepOrange;
-        label = 'Award Active';
-        icon = Icons.block;
+        bg = AppColors.warningBg;
+        text = AppColors.warning;
+        label = 'Active Award';
+        icon = Icons.block_flipped;
         break;
     }
 
@@ -225,15 +226,16 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(AppRadius.full),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: text),
+          Icon(icon, size: 13, color: text),
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: text),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: text),
           ),
         ],
       ),
@@ -261,35 +263,34 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MoTA Scholarship Explorer'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(24),
-          child: Container(
+        title: const Text('MoTA Scholarships'),
+      ),
+      body: Column(
+        children: [
+          // Statutory rule educational banner
+          Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(bottom: 6),
-            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 8),
+            color: AppColors.surfaceVariant,
             child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.verified_outlined, size: 13, color: Colors.white70),
-                SizedBox(width: 4),
-                Text(
-                  'Source: Ministry of Tribal Affairs (tribal.nic.in)',
-                  style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w500),
+                Icon(Icons.info_outline_rounded, size: 16, color: AppColors.primary),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'You can receive one government scholarship at a time. All 5 MoTA schemes are listed below.',
+                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
-      body: Column(
-        children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
             child: TextField(
               controller: _searchController,
               decoration: const InputDecoration(
-                hintText: 'Search schemes (Pre-Matric, PMS, Top Class, NFST, NOS)...',
+                hintText: 'Search scholarships (Pre-Matric, Post-Matric, Top Class)...',
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (_) => setState(() {}),
@@ -309,10 +310,12 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
                   label: Text(cat),
                   selected: isSelected,
                   selectedColor: AppColors.primary,
+                  backgroundColor: AppColors.surface,
+                  side: const BorderSide(color: AppColors.border),
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.textPrimary,
+                    color: isSelected ? AppColors.surface : AppColors.textPrimary,
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
                   onSelected: (selected) {
                     if (selected) setState(() => _selectedCategory = cat);
@@ -345,143 +348,131 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
                 return ListView.separated(
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.lg),
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
                   itemBuilder: (context, idx) {
                     final scheme = filtered[idx];
                     final eval = MoTAEligibilityEngine.evaluateScheme(profile: studentProfile, scheme: scheme);
 
-                    return Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
-                        side: BorderSide(color: AppColors.border.withValues(alpha: 0.6)),
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(color: AppColors.border),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Header: Title and Eligibility Status
-                            Row(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header: Title and Eligibility Status
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      scheme.schemeName,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    const Text(
+                                      'Ministry of Tribal Affairs',
+                                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              _buildStatusChip(eval.status),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+
+                          // Who can apply info
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.sm),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                            ),
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                const Icon(Icons.people_outline, size: 16, color: AppColors.textSecondary),
+                                const SizedBox(width: 6),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        scheme.schemeName,
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.textPrimary,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      const Text(
-                                        'Source: Ministry of Tribal Affairs',
-                                        style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600),
-                                      ),
-                                    ],
+                                  child: Text(
+                                    scheme.whoCanApply,
+                                    style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
                                   ),
                                 ),
-                                const SizedBox(width: AppSpacing.sm),
-                                _buildStatusChip(eval.status),
                               ],
                             ),
-                            const SizedBox(height: AppSpacing.md),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
 
-                            // Who can apply info
-                            Container(
-                              padding: const EdgeInsets.all(AppSpacing.sm),
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceVariant.withValues(alpha: 0.6),
-                                borderRadius: BorderRadius.circular(AppRadius.sm),
+                          // Grid specs: Income limit, Education level, Main benefits
+                          Row(
+                            children: [
+                              _buildSpecBox(
+                                icon: Icons.account_balance_wallet_outlined,
+                                label: 'Income Limit',
+                                value: scheme.incomeLimit.formattedLimit,
                               ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.people_outline, size: 16, color: AppColors.textSecondary),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      scheme.whoCanApply,
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(width: AppSpacing.sm),
+                              _buildSpecBox(
+                                icon: Icons.school_outlined,
+                                label: 'Education Level',
+                                value: scheme.targetEducationLevel,
                               ),
-                            ),
-                            const SizedBox(height: AppSpacing.md),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Row(
+                            children: [
+                              _buildSpecBox(
+                                icon: Icons.card_giftcard_outlined,
+                                label: 'Main Benefits',
+                                value: scheme.scholarshipBenefits.maintenanceAllowance.isNotEmpty
+                                    ? 'Stipend + Fee Waiver'
+                                    : 'Full Financial Grant',
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              _buildSpecBox(
+                                icon: Icons.public_outlined,
+                                label: 'Application Route',
+                                value: scheme.applicationPortal.portalName,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
 
-                            // Grid specs: Income limit, Education level, Main benefits, Route
-                            Row(
-                              children: [
-                                _buildSpecBox(
-                                  icon: Icons.account_balance_wallet_outlined,
-                                  label: 'Income Limit',
-                                  value: scheme.incomeLimit.formattedLimit,
-                                  color: AppColors.primary,
+                          // Actions: Check Eligibility & View Details
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => _showQuickEligibilitySheet(context, scheme, studentProfile),
+                                  icon: const Icon(Icons.fact_check_outlined, size: 16),
+                                  label: const Text('Eligibility', style: TextStyle(fontSize: 13)),
                                 ),
-                                const SizedBox(width: AppSpacing.sm),
-                                _buildSpecBox(
-                                  icon: Icons.school_outlined,
-                                  label: 'Education Level',
-                                  value: scheme.targetEducationLevel,
-                                  color: AppColors.secondary,
+                              ),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () => context.push(AppRoutes.schemeDetailPath(scheme.schemeId)),
+                                  icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                                  label: const Text('View Scheme', style: TextStyle(fontSize: 13)),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: AppSpacing.sm),
-                            Row(
-                              children: [
-                                _buildSpecBox(
-                                  icon: Icons.card_giftcard,
-                                  label: 'Main Benefits',
-                                  value: scheme.scholarshipBenefits.maintenanceAllowance.isNotEmpty
-                                      ? 'Stipend + Fee Waiver'
-                                      : 'Full Financial Grant',
-                                  color: AppColors.info,
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                _buildSpecBox(
-                                  icon: Icons.public,
-                                  label: 'Application Route',
-                                  value: scheme.applicationPortal.portalName,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: AppSpacing.lg),
-
-                            // Actions: Check Eligibility & View Details
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    style: OutlinedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                    ),
-                                    onPressed: () => _showQuickEligibilitySheet(context, scheme, studentProfile),
-                                    icon: const Icon(Icons.fact_check_outlined, size: 16),
-                                    label: const Text('Check Eligibility', style: TextStyle(fontSize: 12)),
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.md),
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                    ),
-                                    onPressed: () => context.push(AppRoutes.schemeDetailPath(scheme.schemeId)),
-                                    icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                                    label: const Text('View Details', style: TextStyle(fontSize: 12)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -503,13 +494,12 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
     required IconData icon,
     required String label,
     required String value,
-    required Color color,
   }) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.sm),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceVariant,
           borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(color: AppColors.border),
         ),
@@ -528,7 +518,7 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
               value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
             ),
           ],
         ),

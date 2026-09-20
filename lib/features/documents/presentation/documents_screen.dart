@@ -38,7 +38,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Document Wallet'),
+        title: const Text('Documents'),
         actions: [
           IconButton(
             icon: const Icon(Icons.sync_rounded),
@@ -49,7 +49,10 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
               ref.invalidate(userDocumentsProvider);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('DigiLocker documents synced successfully!')),
+                  const SnackBar(
+                    content: Text('DigiLocker documents synced successfully!'),
+                    backgroundColor: AppColors.success,
+                  ),
                 );
               }
             },
@@ -59,7 +62,9 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('upload_document_fab'),
         onPressed: () => _openUploadSheet(context),
-        icon: const Icon(Icons.upload_file),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.surface,
+        icon: const Icon(Icons.upload_file_outlined),
         label: const Text('Upload Document'),
       ),
       body: Column(
@@ -67,16 +72,19 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
           if (AppConfig.isDemo)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
-              color: Colors.purple.shade50,
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 8),
+              decoration: const BoxDecoration(
+                color: AppColors.surfaceVariant,
+                border: Border(bottom: BorderSide(color: AppColors.border)),
+              ),
               child: Row(
                 children: [
-                  Icon(Icons.science_outlined, color: Colors.purple.shade700, size: 18),
+                  const Icon(Icons.info_outline_rounded, color: AppColors.textSecondary, size: 16),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      '${AppConfig.simulatedLabel} Document uploads are stored locally in mock wallet.',
-                      style: TextStyle(fontSize: 12, color: Colors.purple.shade900, fontWeight: FontWeight.w500),
+                      '${AppConfig.simulatedLabel}: Document uploads stored in secure mock wallet.',
+                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
                     ),
                   ),
                 ],
@@ -85,60 +93,105 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(AppSpacing.md),
-            color: AppColors.primary.withOpacity(0.08),
+            color: AppColors.surface,
             child: const Row(
               children: [
-                Icon(Icons.verified, color: AppColors.primary, size: 20),
+                Icon(Icons.verified_outlined, color: AppColors.primary, size: 20),
                 SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Government-verified documents via DigiLocker or client-hashed uploads (SHA-256 integrity check) eliminate physical submissions.',
-                    style: TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                    'Government-verified documents via DigiLocker and uploaded certificates are stored here.',
+                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
                   ),
                 ),
               ],
             ),
           ),
+          const Divider(height: 1),
           Expanded(
             child: docsAsync.when(
               data: (docs) {
                 if (docs.isEmpty) {
-                  return const Center(child: Text('No documents found. Tap "Upload Document" to add one.'));
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.folder_open_outlined, size: 48, color: AppColors.textTertiary),
+                          const SizedBox(height: AppSpacing.md),
+                          const Text(
+                            'No documents found',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Tap "Upload Document" below or sync with DigiLocker.',
+                            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 }
 
                 return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 80),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 88),
                   itemCount: docs.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                   itemBuilder: (context, idx) {
                     final doc = docs[idx];
                     final isDigiLocker = doc.source == 'DIGILOCKER';
 
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: isDigiLocker ? AppColors.infoBg : AppColors.surfaceVariant,
-                          child: Icon(
-                            isDigiLocker ? Icons.verified_user : Icons.file_present_rounded,
-                            color: isDigiLocker ? AppColors.info : AppColors.primary,
-                          ),
-                        ),
-                        title: Text(doc.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Issued: ${doc.issuedDate.day}/${doc.issuedDate.month}/${doc.issuedDate.year} • ${doc.source}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.sm),
+                            decoration: BoxDecoration(
+                              color: isDigiLocker ? AppColors.successBg : AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
                             ),
-                            if (doc.sha256 != null)
-                              Text(
-                                'SHA-256: ${doc.sha256!.substring(0, 10)}...',
-                                style: const TextStyle(fontSize: 10, fontFamily: 'monospace', color: AppColors.textSecondary),
-                              ),
-                          ],
-                        ),
-                        trailing: StatusBadge(status: doc.verificationStatus, isSmall: true),
+                            child: Icon(
+                              isDigiLocker ? Icons.verified_user_outlined : Icons.description_outlined,
+                              color: isDigiLocker ? AppColors.success : AppColors.primary,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  doc.title,
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  'Issued: ${doc.issuedDate.day}/${doc.issuedDate.month}/${doc.issuedDate.year} • ${doc.source}',
+                                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                ),
+                                if (doc.sha256 != null) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'SHA-256: ${doc.sha256!.substring(0, 10)}...',
+                                    style: const TextStyle(fontSize: 10, fontFamily: 'monospace', color: AppColors.textTertiary),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          StatusBadge(status: doc.verificationStatus, isSmall: true),
+                        ],
                       ),
                     );
                   },
@@ -247,6 +300,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            backgroundColor: AppColors.success,
             content: Text(
               next.isSimulated
                   ? 'SIMULATED: Document added to mock wallet (pending verification)'
@@ -267,9 +321,10 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
       maxChildSize: 0.9,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? AppColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+            border: const Border(top: BorderSide(color: AppColors.border)),
           ),
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: ListView(
@@ -281,7 +336,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppColors.border,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -291,24 +346,24 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                 children: [
                   const Text(
                     'Upload Document',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                   ),
                   if (AppConfig.isDemo)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.purple.shade50,
+                        color: AppColors.surfaceVariant,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.purple.shade200),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: Text(
                         AppConfig.simulatedLabel,
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.purple.shade700),
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                       ),
                     ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.xs),
               const Text(
                 'Allowed formats: PDF, JPG, PNG (Max: 2 MB). All files are integrity checked using SHA-256.',
                 style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -316,12 +371,12 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
               const SizedBox(height: AppSpacing.md),
 
               // Document Type Selector
-              const Text('Document Type', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text('Document Type', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
               const SizedBox(height: AppSpacing.xs),
               DropdownButtonFormField<String>(
                 value: _selectedType,
+                dropdownColor: AppColors.surface,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 items: AppConstants.documentTypes.map((t) {
@@ -339,7 +394,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
               const SizedBox(height: AppSpacing.lg),
 
               // File Selection Buttons
-              const Text('Select Source', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text('Select File Source', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
@@ -347,7 +402,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                     child: OutlinedButton.icon(
                       key: const Key('pick_pdf_button'),
                       onPressed: inProgress ? null : _pickPdf,
-                      icon: const Icon(Icons.picture_as_pdf),
+                      icon: const Icon(Icons.picture_as_pdf_outlined),
                       label: const Text('Pick PDF'),
                     ),
                   ),
@@ -364,7 +419,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                                   child: Wrap(
                                     children: [
                                       ListTile(
-                                        leading: const Icon(Icons.camera_alt),
+                                        leading: const Icon(Icons.camera_alt_outlined),
                                         title: const Text('Camera'),
                                         onTap: () {
                                           Navigator.pop(context);
@@ -372,7 +427,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                                         },
                                       ),
                                       ListTile(
-                                        leading: const Icon(Icons.photo_library),
+                                        leading: const Icon(Icons.photo_library_outlined),
                                         title: const Text('Gallery'),
                                         onTap: () {
                                           Navigator.pop(context);
@@ -384,7 +439,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                                 ),
                               );
                             },
-                      icon: const Icon(Icons.photo_camera),
+                      icon: const Icon(Icons.photo_camera_outlined),
                       label: const Text('Photo'),
                     ),
                   ),
@@ -397,13 +452,13 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
+                    color: AppColors.surfaceVariant,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.insert_drive_file, color: AppColors.primary),
+                      const Icon(Icons.insert_drive_file_outlined, color: AppColors.primary),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Column(
@@ -411,11 +466,11 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                           children: [
                             Text(
                               _selectedFileName!,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary),
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              '${(_selectedBytes!.length / 1024).toStringAsFixed(1)} KB • Integrity: SHA-256 client verified',
+                              '${(_selectedBytes!.length / 1024).toStringAsFixed(1)} KB • SHA-256 verified',
                               style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                             ),
                           ],
@@ -423,7 +478,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                       ),
                       if (!inProgress)
                         IconButton(
-                          icon: const Icon(Icons.close, size: 20),
+                          icon: const Icon(Icons.close_rounded, size: 20),
                           onPressed: () {
                             setState(() {
                               _selectedBytes = null;
@@ -442,18 +497,18 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.sm),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.red.shade200),
+                    color: AppColors.errorBg,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(color: AppColors.error),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
+                      const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 18),
                       const SizedBox(width: AppSpacing.xs),
                       Expanded(
                         child: Text(
                           _validationError!,
-                          style: TextStyle(color: Colors.red.shade900, fontSize: 12),
+                          style: const TextStyle(color: AppColors.error, fontSize: 12),
                         ),
                       ),
                     ],
@@ -467,21 +522,21 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.sm),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.red.shade200),
+                    color: AppColors.errorBg,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(color: AppColors.error),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.error, color: Colors.red.shade700, size: 18),
+                          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 18),
                           const SizedBox(width: AppSpacing.xs),
                           Expanded(
                             child: Text(
                               uploadError,
-                              style: TextStyle(color: Colors.red.shade900, fontSize: 12),
+                              style: const TextStyle(color: AppColors.error, fontSize: 12),
                             ),
                           ),
                         ],
@@ -490,7 +545,7 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                         alignment: Alignment.centerRight,
                         child: TextButton.icon(
                           onPressed: inProgress ? null : _startUpload,
-                          icon: const Icon(Icons.refresh, size: 16),
+                          icon: const Icon(Icons.refresh_rounded, size: 16),
                           label: const Text('Retry Upload'),
                         ),
                       ),
@@ -519,11 +574,8 @@ class _UploadDocumentSheetState extends ConsumerState<_UploadDocumentSheet> {
                 onPressed: (inProgress || _selectedBytes == null || _validationError != null)
                     ? null
                     : _startUpload,
-                icon: const Icon(Icons.cloud_upload),
+                icon: const Icon(Icons.cloud_upload_outlined),
                 label: const Text('Upload Document'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
               ),
             ],
           ),

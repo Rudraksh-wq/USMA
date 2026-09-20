@@ -53,10 +53,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verify OTP'),
+        title: const Text('Verify Code'),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.xxl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,61 +65,80 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 'Enter Verification Code',
                 style: TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
               const Text(
-                'A 6-digit one-time password has been sent to your registered mobile number.',
+                'A 6-digit code has been sent to your registered mobile number.',
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: AppSpacing.xxl),
-              TextField(
-                controller: _otpController,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 12,
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: AppColors.border),
                 ),
-                decoration: InputDecoration(
-                  counterText: '',
-                  hintText: '••••••',
-                  hintStyle: TextStyle(
-                    letterSpacing: 12,
-                    color: Colors.grey.shade400,
-                  ),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _otpController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 10,
+                        color: AppColors.textPrimary,
+                      ),
+                      decoration: const InputDecoration(
+                        counterText: '',
+                        hintText: '••••••',
+                        hintStyle: TextStyle(
+                          letterSpacing: 10,
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _verifyOtp,
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Verify & Continue'),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _verifyOtp,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Text('Verify & Proceed'),
               ),
               const SizedBox(height: AppSpacing.lg),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Didn't receive code? "),
+                  const Text(
+                    "Didn't receive code? ",
+                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  ),
                   TextButton(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('A new OTP has been sent!')),
+                        const SnackBar(
+                          content: Text('A new OTP has been sent to your phone!'),
+                          backgroundColor: AppColors.success,
+                        ),
                       );
                     },
-                    child: const Text('Resend OTP'),
+                    child: const Text('Resend Code'),
                   ),
                 ],
               ),

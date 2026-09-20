@@ -18,7 +18,7 @@ class ApplicationDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Application Status & Timeline'),
+        title: const Text('Application Timeline'),
       ),
       body: appAsync.when(
         data: (app) {
@@ -34,9 +34,8 @@ class ApplicationDetailScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(color: AppColors.border),
-                    boxShadow: AppShadows.card,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,30 +43,30 @@ class ApplicationDetailScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(app.id, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textTertiary)),
+                          Text(app.id, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textTertiary)),
                           StatusBadge(status: app.status),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.sm),
-                      Text(app.schemeTitle, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                      Text(app.schemeTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                       const SizedBox(height: 4),
                       Text('${app.instituteName} • ${app.academicYear}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                       const SizedBox(height: AppSpacing.md),
                       const Divider(),
-                      const SizedBox(height: AppSpacing.xs),
+                      const SizedBox(height: AppSpacing.sm),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text('Sanctioned Scholarship Amount', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                          Text('₹${app.sanctionedAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.primary)),
+                          Text('₹${app.sanctionedAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary)),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xxl),
+                const SizedBox(height: AppSpacing.xl),
 
-                const Text('Lifecycle Verification Timeline', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                const Text('What Happens Next (5-Stage Timeline)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                 const SizedBox(height: AppSpacing.md),
 
                 // Timeline List
@@ -98,8 +97,8 @@ class ApplicationDetailScreen extends ConsumerWidget {
                               child: Center(
                                 child: Icon(
                                   item.isCompleted ? Icons.check : Icons.circle,
-                                  size: 14,
-                                  color: item.isCompleted ? Colors.white : AppColors.textTertiary,
+                                  size: 13,
+                                  color: item.isCompleted ? AppColors.surface : AppColors.textTertiary,
                                 ),
                               ),
                             ),
@@ -121,8 +120,8 @@ class ApplicationDetailScreen extends ConsumerWidget {
                                 Text(
                                   item.title,
                                   style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
                                     color: item.isCompleted ? AppColors.textPrimary : AppColors.textTertiary,
                                   ),
                                 ),
@@ -134,7 +133,7 @@ class ApplicationDetailScreen extends ConsumerWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   '${item.timestamp.day}/${item.timestamp.month}/${item.timestamp.year}',
-                                  style: const TextStyle(fontSize: 10, color: AppColors.textTertiary),
+                                  style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
                                 ),
                               ],
                             ),
@@ -150,7 +149,7 @@ class ApplicationDetailScreen extends ConsumerWidget {
                   ElevatedButton.icon(
                     onPressed: () => context.go(AppRoutes.disbursements),
                     icon: const Icon(Icons.currency_rupee_rounded),
-                    label: const Text('View Direct Bank Transfer (DBT) Status'),
+                    label: const Text('View Payment & DBT Details'),
                   ),
               ],
             ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/tokens.dart';
+import '../../settings/data/language_provider.dart';
 import '../data/auth_repository.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -47,6 +48,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentLang = ref.watch(languageCodeProvider);
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -56,76 +59,134 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: AppSpacing.xl),
+                // Top language selector row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppRadius.full),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: currentLang,
+                          icon: const Icon(Icons.language_rounded, size: 16, color: AppColors.primary),
+                          style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                          items: const [
+                            DropdownMenuItem(value: 'en', child: Text('English')),
+                            DropdownMenuItem(value: 'hi', child: Text('हिन्दी')),
+                            DropdownMenuItem(value: 'or', child: Text('ଓଡ଼ିଆ')),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) {
+                              ref.read(languageCodeProvider.notifier).setLanguageCode(val);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.surface,
                       shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: const Icon(
-                      Icons.account_balance_rounded,
-                      size: 48,
+                      Icons.school_rounded,
+                      size: 40,
                       color: AppColors.primary,
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                const Text(
-                  'Welcome to USMA',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                const SizedBox(height: AppSpacing.lg),
+                const Center(
+                  child: Text(
+                    'Welcome to USMA',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                const Text(
-                  'Enter your Aadhaar-linked mobile number to access your MoTA scholarship dashboard.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
+                const SizedBox(height: 4),
+                const Center(
+                  child: Text(
+                    'Unified Scholarship Mobile Application • MoTA',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
-                const Text(
-                  'Mobile Number',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+
+                // Calm input card
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Mobile Number',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'We send a 6-digit code to verify your phone. We never share your number.',
+                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      TextFormField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 10,
+                        decoration: const InputDecoration(
+                          prefixText: '+91  ',
+                          hintText: '98765 43210',
+                          prefixIcon: Icon(Icons.phone_android_rounded),
+                          counterText: '',
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().length != 10) {
+                            return 'Please enter a valid 10-digit mobile number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : _handleSendOtp,
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text('Get Verification Code'),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  maxLength: 10,
-                  decoration: const InputDecoration(
-                    prefixText: '+91  ',
-                    hintText: '98765 43210',
-                    prefixIcon: Icon(Icons.phone_iphone_rounded),
-                    counterText: '',
-                  ),
-                  validator: (val) {
-                    if (val == null || val.trim().length != 10) {
-                      return 'Please enter a valid 10-digit mobile number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _handleSendOtp,
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                      : const Text('Get OTP Verification'),
-                ),
+
                 if (AppConfig.isDemo) ...[
                   const SizedBox(height: AppSpacing.lg),
                   Center(
@@ -137,24 +198,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           context.go(AppRoutes.dashboard);
                         }
                       },
-                      icon: const Icon(Icons.science_outlined, size: 18, color: Colors.purple),
+                      icon: const Icon(Icons.science_outlined, size: 18, color: AppColors.primary),
                       label: Text(
-                        '${AppConfig.simulatedLabel}: Continue as Guest / Demo Student',
-                        style: const TextStyle(color: Colors.purple, fontWeight: FontWeight.w600),
+                        '${AppConfig.simulatedLabel}: Explore as Demo Student',
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
                 ],
-                const SizedBox(height: AppSpacing.xxl),
+                const SizedBox(height: AppSpacing.xl),
+
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.verified_user_rounded, color: AppColors.primary, size: 20),
+                      Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
                       SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(

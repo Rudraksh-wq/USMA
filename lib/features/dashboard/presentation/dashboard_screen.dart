@@ -32,9 +32,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? AppColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+            border: const Border(top: BorderSide(color: AppColors.border, width: 1)),
           ),
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
@@ -56,7 +57,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.xs),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.errorBg,
                       shape: BoxShape.circle,
                     ),
@@ -66,7 +67,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const Expanded(
                     child: Text(
                       'Action Required (Deficiency)',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
                 ],
@@ -74,38 +79,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               const SizedBox(height: AppSpacing.md),
               Text(
                 def.issue,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 'Source: ${def.source} • Raised: ${def.date.day}/${def.date.month}/${def.date.year}',
-                style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
               ),
               const SizedBox(height: AppSpacing.md),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
-                  color: AppColors.warningBg.withValues(alpha: 0.4),
+                  color: AppColors.warningBg,
                   borderRadius: BorderRadius.circular(AppRadius.md),
-                  border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Resolution Guidance:',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.warning),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.warning,
+                      ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       def.actionRequired,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                      style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.4),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
                       'Deadline: ${def.deadline.day}/${def.deadline.month}/${def.deadline.year}',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.error),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.error,
+                      ),
                     ),
                   ],
                 ),
@@ -122,7 +139,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: ElevatedButton.icon(
-                      icon: const Icon(Icons.upload_file, size: 16),
+                      icon: const Icon(Icons.upload_file_outlined, size: 18),
                       label: const Text('Resolve Now'),
                       onPressed: () async {
                         Navigator.pop(ctx);
@@ -130,7 +147,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ref.invalidate(userDeficienciesProvider);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Document uploaded and deficiency resolved!')),
+                            const SnackBar(
+                              content: Text('Document uploaded and deficiency resolved!'),
+                              backgroundColor: AppColors.success,
+                            ),
                           );
                           context.push(AppRoutes.documents);
                         }
@@ -160,7 +180,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final disbursements = disbursementsAsync.asData?.value ?? const [];
     final deficiencies = deficienciesAsync.asData?.value ?? const [];
 
-    final activeAppsCount = apps.where((a) => a.isActive).length;
+    final activeApps = apps.where((a) => a.isActive).toList();
+    final primaryApp = activeApps.isNotEmpty ? activeApps.first : (apps.isNotEmpty ? apps.first : null);
     final totalSanctioned = apps.fold<double>(0, (sum, a) => sum + a.sanctionedAmount);
     final totalDisbursed = disbursements.where((d) => d.pfmsStatus == 'SUCCESS').fold<double>(0, (sum, d) => sum + d.amount);
     final latestDisbursement = disbursements.isNotEmpty ? disbursements.first : null;
@@ -173,22 +194,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Container(
               padding: const EdgeInsets.all(AppSpacing.xs),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.surfaceVariant,
                 shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
               ),
-              child: const Icon(Icons.shield_outlined, color: AppColors.primary, size: 22),
+              child: const Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: AppSpacing.sm),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'USMA Command Center',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary),
+                  'USMA',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                    letterSpacing: 0.5,
+                  ),
                 ),
                 Text(
-                  'Ministry of Tribal Affairs • DBT Portal',
-                  style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                  'Ministry of Tribal Affairs',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -196,23 +226,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.calculate_outlined, color: AppColors.primary),
-            tooltip: 'Dynamic Eligibility Checker',
-            onPressed: () => context.push(AppRoutes.eligibility),
-          ),
-          IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             tooltip: 'Notifications',
             onPressed: () => context.push(AppRoutes.notifications),
           ),
           IconButton(
-            icon: const Icon(Icons.account_circle_outlined),
-            tooltip: 'Profile',
+            icon: const Icon(Icons.person_outline_rounded),
+            tooltip: 'Profile & Settings',
             onPressed: () => context.push(AppRoutes.profile),
           ),
         ],
       ),
       body: RefreshIndicator(
+        color: AppColors.primary,
         onRefresh: () async {
           ref.invalidate(userApplicationsProvider);
           ref.invalidate(motaSchemesListProvider);
@@ -227,533 +253,650 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Offline Synchronization status indicator
+              // Offline Synchronization Status Banner
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
-                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+                margin: const EdgeInsets.only(bottom: AppSpacing.lg),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.cloud_done_outlined, size: 14, color: AppColors.success),
-                        SizedBox(width: 6),
-                        Text(
-                          'Last synchronized: Today, 15:20 IST (Offline-ready)',
-                          style: TextStyle(fontSize: 10, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                    const Icon(Icons.check_circle_outline_rounded, size: 16, color: AppColors.success),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Synced with MoTA • Works offline',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
                         ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(AppRadius.xs),
                       ),
-                      child: const Text('Demo Data', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.brown)),
                     ),
+                    if (AppConfig.isDemo)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Text(
+                          'Demo data',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
 
-              // 1. STUDENT OVERVIEW & COMMAND HEADER
+              // ==========================================
+              // ZONE 1: WARM GREETING & STATUS CARD
+              // ==========================================
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.primaryDark],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  boxShadow: AppShadows.card,
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Johar, ${user?.name ?? "Sunita Marandi"}! 🙏',
+                                'Johar, ${user?.name ?? "Sunita"} 🙏',
                                 style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 4),
                               Text(
-                                '${user?.tribe ?? "Santhal"} Tribe • ${user?.district ?? "Mayurbhanj"}, ${user?.state ?? "Odisha"}',
-                                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                '${user?.tribe ?? "Santhal"} • ${user?.district ?? "Mayurbhanj"}, ${user?.state ?? "Odisha"}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                             ],
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: AppColors.successBg,
                             borderRadius: BorderRadius.circular(AppRadius.full),
+                            border: Border.all(color: AppColors.border),
                           ),
                           child: const Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.verified, color: Colors.amberAccent, size: 14),
+                              Icon(Icons.verified_outlined, color: AppColors.success, size: 14),
                               SizedBox(width: 4),
-                              Text('ST Verified', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
+                              Text(
+                                'ST Verified',
+                                style: TextStyle(
+                                  color: AppColors.success,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    // Profile Completion Bar
-                    Row(
-                      children: [
-                        const Text('Profile Completion: 90%', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                        const Spacer(),
-                        const Text('Aadhaar & DigiLocker Linked', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: const LinearProgressIndicator(
-                        value: 0.90,
-                        backgroundColor: Colors.white24,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.amberAccent),
-                        minHeight: 6,
-                      ),
-                    ),
                     const SizedBox(height: AppSpacing.lg),
-                    // KPI stats row
+                    // Summary counts in warm earthy tiles
                     Row(
                       children: [
-                        _buildStatTile('Active Applications', '$activeAppsCount', Icons.assignment_turned_in_outlined),
+                        Expanded(
+                          child: _buildSummaryTile(
+                            context,
+                            label: 'Active Scheme',
+                            value: activeApps.isNotEmpty ? '${activeApps.length}' : '0',
+                            icon: Icons.school_outlined,
+                          ),
+                        ),
                         const SizedBox(width: AppSpacing.sm),
-                        _buildStatTile('Total Sanctioned', '₹${totalSanctioned.toStringAsFixed(0)}', Icons.account_balance_wallet_outlined),
+                        Expanded(
+                          child: _buildSummaryTile(
+                            context,
+                            label: 'Sanctioned',
+                            value: '₹${totalSanctioned.toStringAsFixed(0)}',
+                            icon: Icons.account_balance_wallet_outlined,
+                          ),
+                        ),
                         const SizedBox(width: AppSpacing.sm),
-                        _buildStatTile('Disbursed (DBT)', '₹${totalDisbursed.toStringAsFixed(0)}', Icons.check_circle_outline),
+                        Expanded(
+                          child: _buildSummaryTile(
+                            context,
+                            label: 'Disbursed',
+                            value: '₹${totalDisbursed.toStringAsFixed(0)}',
+                            icon: Icons.check_circle_outline_rounded,
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.xl),
 
-              // Action shortcuts
+              // ==========================================
+              // ZONE 2: NEEDS YOUR ATTENTION
+              // ==========================================
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      icon: Icons.explore_outlined,
-                      title: 'Scholarship Explorer',
-                      subtitle: '5 MoTA Schemes',
-                      color: AppColors.primary,
-                      onTap: () => context.push(AppRoutes.schemes),
+                  Text(
+                    AppLocalization.tr('dash_attention_title', lang: langCode),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      icon: Icons.checklist_rtl_rounded,
-                      title: AppLocalization.tr('dash_eligibility_engine', lang: langCode),
-                      subtitle: AppLocalization.tr('dash_statutory_check', lang: langCode),
-                      color: AppColors.secondary,
-                      onTap: () => context.push(AppRoutes.eligibility),
+                  if (unresolvedDeficiencies.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.errorBg,
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Text(
+                        '${unresolvedDeficiencies.length} Action${unresolvedDeficiencies.length > 1 ? "s" : ""}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.error,
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      icon: Icons.hub_outlined,
-                      title: AppLocalization.tr('dash_unified_verification', lang: langCode),
-                      subtitle: AppLocalization.tr('dash_unified_verification_sub', lang: langCode),
-                      color: AppColors.info,
-                      onTap: () => context.push(AppRoutes.verification),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      icon: Icons.analytics_outlined,
-                      title: AppLocalization.tr('dash_officer_analytics', lang: langCode),
-                      subtitle: AppLocalization.tr('dash_officer_analytics_sub', lang: langCode),
-                      color: AppColors.gold,
-                      onTap: () => context.push(AppRoutes.adminAnalytics),
-                    ),
-                  ),
-                ],
-              ),
-              if (AppConfig.isDemo) ...[
-                const SizedBox(height: AppSpacing.sm),
+              if (unresolvedDeficiencies.isEmpty)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: Colors.purple.shade50,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(color: Colors.purple.shade200),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.admin_panel_settings_outlined, size: 20, color: Colors.purple.shade700),
-                          const SizedBox(width: AppSpacing.sm),
-                          Text(
-                            '${AppConfig.simulatedLabel}: View as Admin',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.purple.shade900,
-                            ),
+                      const Icon(Icons.check_circle_outline_rounded, color: AppColors.success, size: 20),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          AppLocalization.tr('dash_attention_empty', lang: langCode),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
                           ),
-                        ],
-                      ),
-                      Switch.adaptive(
-                        key: const Key('demo_admin_toggle'),
-                        value: ref.watch(demoAdminModeProvider),
-                        activeColor: Colors.purple.shade700,
-                        onChanged: (val) {
-                          ref.read(demoAdminModeProvider.notifier).state = val;
-                        },
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.xl),
-
-              // 2. DEFICIENCY CENTER (ACTION REQUIRED)
-              if (unresolvedDeficiencies.isNotEmpty) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 20),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Deficiency Center (${unresolvedDeficiencies.length} Actions)',
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.error),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.errorBg,
-                        borderRadius: BorderRadius.circular(AppRadius.xs),
-                      ),
-                      child: const Text('Action Required', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.error)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                for (final def in unresolvedDeficiencies)
-                  Card(
-                    color: AppColors.errorBg.withValues(alpha: 0.3),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      side: BorderSide(color: AppColors.error.withValues(alpha: 0.4)),
-                    ),
+                )
+              else
+                ...unresolvedDeficiencies.take(3).map((def) {
+                  return Container(
                     margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  def.issue,
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(color: AppColors.borderStrong),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.info_outline_rounded, color: AppColors.warning, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                def.issue,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: def.severity == DeficiencySeverity.critical ? AppColors.error : AppColors.warning,
-                                  borderRadius: BorderRadius.circular(AppRadius.xs),
-                                ),
-                                child: Text(
-                                  def.severity.name.toUpperCase(),
-                                  style: const TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 26),
+                          child: Text(
+                            def.actionRequired,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                          const SizedBox(height: 4),
-                          Text('Source: ${def.source} • Scheme: ${def.schemeTitle}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Action: ${def.actionRequired}',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Row(
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 26),
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Deadline: ${def.deadline.day}/${def.deadline.month}/${def.deadline.year}',
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.error),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textTertiary,
+                                ),
                               ),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.error,
-                                  minimumSize: const Size(80, 28),
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(90, 32),
                                   padding: const EdgeInsets.symmetric(horizontal: 12),
                                 ),
                                 onPressed: () => _showDeficiencyFixSheet(context, def),
-                                child: const Text('Fix Now', style: TextStyle(fontSize: 11, color: Colors.white)),
+                                child: const Text('Resolve', style: TextStyle(fontSize: 12)),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: AppSpacing.xl),
-              ],
-
-              // 3. UNIFIED APPLICATION TIMELINE & SCHEME TRACKER
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Active Application Tracking',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                  ),
-                  TextButton(
-                    onPressed: () => context.push(AppRoutes.applications),
-                    child: const Text('View All'),
-                  ),
-                ],
-              ),
-              if (apps.isEmpty)
-                const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(AppSpacing.lg),
-                    child: Text('No active applications currently submitted.'),
-                  ),
-                )
-              else
-                ...apps.take(2).map((app) {
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.lg),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                app.id,
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textTertiary),
-                              ),
-                              StatusBadge(status: app.status),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            app.schemeTitle,
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                          ),
-                          Text(
-                            '${app.instituteName} • AY ${app.academicYear}',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          const Divider(),
-                          const SizedBox(height: AppSpacing.xs),
-
-                          // Visual multi-stage timeline
-                          const Text('Verification & Disbursement Pipeline:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
-                          const SizedBox(height: AppSpacing.sm),
-                          _buildVisualTimeline(app.timeline),
-
-                          const SizedBox(height: AppSpacing.md),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Sanctioned: ₹${app.sanctionedAmount.toStringAsFixed(0)}',
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primary),
-                              ),
-                              TextButton.icon(
-                                onPressed: () => context.push(AppRoutes.applicationDetailPath(app.id)),
-                                icon: const Icon(Icons.arrow_forward, size: 14),
-                                label: const Text('Detailed Lifecycle', style: TextStyle(fontSize: 12)),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   );
                 }),
               const SizedBox(height: AppSpacing.xl),
 
-              // 4. DBT PAYMENT TRACKER
+              // ==========================================
+              // ZONE 3: MY ACTIVE SCHOLARSHIP
+              // ==========================================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'DBT Payment & PFMS Tracker',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  Text(
+                    AppLocalization.tr('dash_active_scholarship', lang: langCode),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   TextButton(
-                    onPressed: () => context.push(AppRoutes.disbursements),
-                    child: const Text('All Transactions'),
+                    onPressed: () => context.push(AppRoutes.applications),
+                    child: const Text('All Applications'),
                   ),
                 ],
               ),
-              if (latestDisbursement != null)
-                Card(
-                  shape: RoundedRectangleBorder(
+              const SizedBox(height: AppSpacing.xs),
+              if (primaryApp == null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(AppRadius.md),
-                    side: BorderSide(color: AppColors.success.withValues(alpha: 0.3)),
+                    border: Border.all(color: AppColors.border),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const CircleAvatar(
-                                  radius: 14,
-                                  backgroundColor: AppColors.successBg,
-                                  child: Icon(Icons.currency_rupee, color: AppColors.success, size: 16),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '₹${latestDisbursement.amount.toStringAsFixed(0)}',
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.success),
-                                ),
-                              ],
-                            ),
-                            const StatusBadge(status: 'SUCCESS', isSmall: true),
-                          ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'No active scholarship application yet.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '${latestDisbursement.schemeTitle} (${latestDisbursement.academicInstallment})',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'UTR: ${latestDisbursement.utrNumber} • ${latestDisbursement.bankName} (..${latestDisbursement.accountLast4})',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                        ),
-                        Text(
-                          'Credited Date: ${latestDisbursement.disbursementDate.day}/${latestDisbursement.disbursementDate.month}/${latestDisbursement.disbursementDate.year}',
-                          style: const TextStyle(fontSize: 10, color: AppColors.textTertiary),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Explore all five MoTA schemes to find the scholarship designed for your current studies.',
+                        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      ElevatedButton(
+                        onPressed: () => context.push(AppRoutes.schemes),
+                        child: const Text('Explore Scholarships'),
+                      ),
+                    ],
                   ),
-                ),
-              const SizedBox(height: AppSpacing.xl),
-
-              // 5. FAMILY SCHOLARSHIP VIEW (OPTIONAL)
-              Card(
-                color: AppColors.surfaceVariant.withValues(alpha: 0.5),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
+                )
+              else
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.border),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
+                          Text(
+                            primaryApp.id,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textTertiary,
+                            ),
+                          ),
+                          StatusBadge(status: primaryApp.status),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        primaryApp.schemeTitle,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${primaryApp.instituteName} • AY ${primaryApp.academicYear}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      const Divider(),
+                      const SizedBox(height: AppSpacing.sm),
+
+                      // Plain language 5-stage timeline
+                      const Text(
+                        'Application Progress:',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _buildCalmTimeline(primaryApp.timeline),
+                      const SizedBox(height: AppSpacing.md),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.family_restroom, color: AppColors.primary, size: 20),
-                              SizedBox(width: 6),
+                              const Text(
+                                'Sanctioned Amount',
+                                style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                              ),
                               Text(
-                                'Family Scholarship Overview',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                '₹${primaryApp.sanctionedAmount.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
                               ),
                             ],
                           ),
-                          Switch(
-                            value: _showFamilyView,
-                            onChanged: (val) => setState(() => _showFamilyView = val),
+                          OutlinedButton(
+                            onPressed: () => context.push(AppRoutes.applicationDetailPath(primaryApp.id)),
+                            child: const Text('View Timeline'),
                           ),
                         ],
                       ),
-                      const Text(
-                        'Securely track applications across children under the same verified ration / family ID.',
-                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                      ),
-                      if (_showFamilyView) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        const Divider(),
-                        const SizedBox(height: AppSpacing.xs),
-                        familyAsync.when(
-                          data: (members) {
-                            return Column(
-                              children: members.map((m) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 12,
-                                        backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                                        child: Text(m.memberName[0], style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary)),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text('${m.memberName} (${m.relationship})', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                            Text(m.schemeName, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                          ],
-                                        ),
-                                      ),
-                                      StatusBadge(status: m.currentStatus, isSmall: true),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          },
-                          loading: () => const Center(child: CircularProgressIndicator()),
-                          error: (e, _) => Text('Error: $e'),
-                        ),
-                      ],
                     ],
                   ),
+                ),
+              const SizedBox(height: AppSpacing.xl),
+
+              // ==========================================
+              // ZONE 4: RECENT PAYMENT (DBT)
+              // ==========================================
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocalization.tr('dash_recent_payment', lang: langCode),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.push(AppRoutes.disbursements),
+                    child: const Text('All Payments'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              if (latestDisbursement != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.sm),
+                        decoration: BoxDecoration(
+                          color: AppColors.successBg,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                        ),
+                        child: const Icon(Icons.currency_rupee_rounded, color: AppColors.success, size: 22),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '₹${latestDisbursement.amount.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                const StatusBadge(status: 'SUCCESS', isSmall: true),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${latestDisbursement.bankName} (..${latestDisbursement.accountLast4})',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            Text(
+                              'Credited on ${latestDisbursement.disbursementDate.day}/${latestDisbursement.disbursementDate.month}/${latestDisbursement.disbursementDate.year}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: const Text(
+                    'No payments received yet. Once approved, DBT amounts are credited directly to your bank account.',
+                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.xl),
+
+              // ==========================================
+              // HELPFUL TOOLS & FAMILY VIEW (OPTIONAL)
+              // ==========================================
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildQuietActionCard(
+                      context,
+                      icon: Icons.checklist_rtl_rounded,
+                      title: 'Eligibility Check',
+                      subtitle: 'Find schemes for you',
+                      onTap: () => context.push(AppRoutes.eligibility),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: _buildQuietActionCard(
+                      context,
+                      icon: Icons.help_outline_rounded,
+                      title: 'Ask JAGO',
+                      subtitle: 'Plain student guide',
+                      onTap: () => context.push(AppRoutes.chatbot),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+
+              // Family Tracking Card (Optional accordion)
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: AppColors.border),
+                ),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.family_restroom_outlined, color: AppColors.primary, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Family Overview',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Switch.adaptive(
+                          value: _showFamilyView,
+                          activeColor: AppColors.primary,
+                          onChanged: (val) => setState(() => _showFamilyView = val),
+                        ),
+                      ],
+                    ),
+                    const Text(
+                      'View sibling applications under the same verified family ration card.',
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                    if (_showFamilyView) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      const Divider(),
+                      const SizedBox(height: AppSpacing.sm),
+                      familyAsync.when(
+                        data: (members) {
+                          return Column(
+                            children: members.map((m) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 12,
+                                      backgroundColor: AppColors.surfaceVariant,
+                                      child: Text(
+                                        m.memberName[0],
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${m.memberName} (${m.relationship})',
+                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                          ),
+                                          Text(
+                                            m.schemeName,
+                                            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    StatusBadge(status: m.currentStatus, isSmall: true),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        },
+                        loading: () => const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                        error: (e, _) => Text('Could not load family data: $e', style: const TextStyle(fontSize: 12)),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               const SizedBox(height: AppSpacing.xxl),
@@ -764,7 +907,94 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildVisualTimeline(List<dynamic> timeline) {
+  Widget _buildSummaryTile(
+    BuildContext context, {
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: AppColors.primary, size: 18),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 11,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuietActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: AppColors.primary, size: 22),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalmTimeline(List<dynamic> timeline) {
     if (timeline.isEmpty) return const SizedBox.shrink();
     return Row(
       children: timeline.asMap().entries.map((entry) {
@@ -779,20 +1009,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Column(
                 children: [
                   CircleAvatar(
-                    radius: 10,
+                    radius: 9,
                     backgroundColor: isCompleted ? AppColors.success : AppColors.surfaceVariant,
                     child: Icon(
                       isCompleted ? Icons.check : Icons.circle,
                       size: 10,
-                      color: isCompleted ? Colors.white : AppColors.textTertiary,
+                      color: isCompleted ? AppColors.surface : AppColors.textTertiary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     event.title.toString().split(' ').first,
                     style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: isCompleted ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 10,
+                      fontWeight: isCompleted ? FontWeight.w600 : FontWeight.normal,
                       color: isCompleted ? AppColors.textPrimary : AppColors.textTertiary,
                     ),
                   ),
@@ -803,70 +1033,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   child: Container(
                     height: 2,
                     color: isCompleted ? AppColors.success : AppColors.border,
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: 16),
                   ),
                 ),
             ],
           ),
         );
       }).toList(),
-    );
-  }
-
-  Widget _buildStatTile(String label, String value, IconData icon) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: Colors.white70, size: 16),
-            const SizedBox(height: 4),
-            Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
-            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 9), maxLines: 1, overflow: TextOverflow.ellipsis),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

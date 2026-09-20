@@ -14,7 +14,8 @@ class MainScaffold extends ConsumerWidget {
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    if (location.startsWith(AppRoutes.schemes) || location.startsWith(AppRoutes.applications)) {
+    if (location.startsWith(AppRoutes.schemes) ||
+        location.startsWith(AppRoutes.applications)) {
       return 1;
     }
     if (location.startsWith(AppRoutes.documents)) {
@@ -61,39 +62,43 @@ class MainScaffold extends ConsumerWidget {
           Expanded(child: child),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: (index) => _onItemTapped(index, context),
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textTertiary,
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined),
-            activeIcon: const Icon(Icons.home_rounded),
-            label: AppLocalization.tr('nav_home', lang: langCode),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(
+            top: BorderSide(color: AppColors.border, width: 1),
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.school_outlined),
-            activeIcon: const Icon(Icons.school_rounded),
-            label: AppLocalization.tr('nav_schemes', lang: langCode),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.folder_shared_outlined),
-            activeIcon: const Icon(Icons.folder_shared_rounded),
-            label: AppLocalization.tr('nav_wallet', lang: langCode),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.currency_rupee_rounded),
-            activeIcon: const Icon(Icons.currency_rupee_rounded),
-            label: AppLocalization.tr('nav_dbt', lang: langCode),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.smart_toy_outlined),
-            activeIcon: const Icon(Icons.smart_toy_rounded),
-            label: AppLocalization.tr('nav_saathi', lang: langCode),
-          ),
-        ],
+        ),
+        child: NavigationBar(
+          selectedIndex: selectedIndex,
+          onDestinationSelected: (index) => _onItemTapped(index, context),
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home_rounded),
+              label: AppLocalization.tr('nav_home', lang: langCode),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.school_outlined),
+              selectedIcon: const Icon(Icons.school_rounded),
+              label: AppLocalization.tr('nav_schemes', lang: langCode),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.folder_open_outlined),
+              selectedIcon: const Icon(Icons.folder_rounded),
+              label: AppLocalization.tr('nav_wallet', lang: langCode),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.account_balance_outlined),
+              selectedIcon: const Icon(Icons.account_balance_rounded),
+              label: AppLocalization.tr('nav_dbt', lang: langCode),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.chat_bubble_outline_rounded),
+              selectedIcon: const Icon(Icons.chat_bubble_rounded),
+              label: AppLocalization.tr('nav_saathi', lang: langCode),
+            ),
+          ],
+        ),
       ),
     );
   }

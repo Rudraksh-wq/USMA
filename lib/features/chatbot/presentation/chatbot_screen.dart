@@ -64,9 +64,10 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
     setState(() => _isListeningVoice = true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        backgroundColor: AppColors.primary,
         content: Row(
           children: [
-            const Icon(Icons.mic, color: Colors.white),
+            const Icon(Icons.mic_rounded, color: AppColors.surface),
             const SizedBox(width: AppSpacing.sm),
             Text(
               _selectedLanguage == JagoLocalization.langHindi
@@ -106,10 +107,14 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            const CircleAvatar(
-              backgroundColor: AppColors.primary,
-              radius: 16,
-              child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 18),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.xs),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Icon(Icons.support_agent_rounded, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
@@ -118,11 +123,11 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                 children: [
                   Text(
                     JagoLocalization.get('app_title', lang: _selectedLanguage),
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                   ),
                   Text(
                     JagoLocalization.get('subtitle', lang: _selectedLanguage),
-                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -134,7 +139,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _selectedLanguage,
-              icon: const Icon(Icons.language, size: 20, color: AppColors.primary),
+              icon: const Icon(Icons.language_rounded, size: 20, color: AppColors.primary),
               items: const [
                 DropdownMenuItem(value: 'en', child: Text('English', style: TextStyle(fontSize: 12))),
                 DropdownMenuItem(value: 'hi', child: Text('हिन्दी', style: TextStyle(fontSize: 12))),
@@ -156,19 +161,22 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
       ),
       body: Column(
         children: [
-          // Demo Banner
+          // Disclaimer Banner
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
-            color: Colors.amber.shade100,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceVariant,
+              border: Border(bottom: BorderSide(color: AppColors.border)),
+            ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, size: 14, color: Colors.amber.shade900),
+                const Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textSecondary),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
                     JagoLocalization.get('disclaimer', lang: _selectedLanguage),
-                    style: TextStyle(fontSize: 10, color: Colors.amber.shade900, fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
@@ -177,8 +185,8 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
 
           // Quick Action Bar
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
-            color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
+            color: AppColors.surface,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -200,7 +208,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                   ),
                   _QuickChip(
                     label: JagoLocalization.get('track_payment', lang: _selectedLanguage),
-                    icon: Icons.currency_rupee,
+                    icon: Icons.currency_rupee_rounded,
                     onTap: () => _sendMessage('When was my last payment?'),
                   ),
                   _QuickChip(
@@ -217,6 +225,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
               ),
             ),
           ),
+          const Divider(height: 1),
 
           // Chat message list
           Expanded(
@@ -238,22 +247,26 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!isUser) ...[
-                            const CircleAvatar(
-                              backgroundColor: AppColors.primaryLight,
-                              radius: 14,
-                              child: Icon(Icons.smart_toy, size: 14, color: Colors.black),
+                            Container(
+                              padding: const EdgeInsets.all(AppSpacing.xs),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceVariant,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: const Icon(Icons.smart_toy_outlined, size: 16, color: AppColors.primary),
                             ),
-                            const SizedBox(width: AppSpacing.xs),
+                            const SizedBox(width: AppSpacing.sm),
                           ],
                           Flexible(
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
                               decoration: BoxDecoration(
-                                color: isUser ? AppColors.primary : AppColors.surfaceVariant,
+                                color: isUser ? AppColors.primary : AppColors.surface,
                                 borderRadius: BorderRadius.circular(AppRadius.md),
-                                border: isUser
-                                    ? null
-                                    : Border.all(color: Colors.grey.shade300, width: 0.8),
+                                border: Border.all(
+                                  color: isUser ? AppColors.primary : AppColors.border,
+                                ),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +274,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                                   Text(
                                     msg.text,
                                     style: TextStyle(
-                                      color: isUser ? Colors.white : AppColors.textPrimary,
+                                      color: isUser ? AppColors.surface : AppColors.textPrimary,
                                       fontSize: 13.5,
                                       height: 1.45,
                                     ),
@@ -282,26 +295,24 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                         ],
                       ),
 
-                      // Actionable Response Buttons (Rule #3: [View Application], [Contact Institute], etc.)
+                      // Actionable Response Buttons
                       if (!isUser && msg.actions != null && msg.actions!.isNotEmpty) ...[
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         Padding(
                           padding: const EdgeInsets.only(left: 36.0),
                           child: Wrap(
                             spacing: 8,
                             runSpacing: 6,
                             children: msg.actions!.map((act) {
-                              return ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  minimumSize: const Size(0, 30),
-                                  textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                              return OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  minimumSize: const Size(0, 32),
+                                  textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                 ),
                                 icon: Icon(
-                                  act.isExternal ? Icons.open_in_new : Icons.arrow_forward,
-                                  size: 13,
+                                  act.isExternal ? Icons.open_in_new_rounded : Icons.arrow_forward_rounded,
+                                  size: 14,
                                 ),
                                 label: Text(act.label),
                                 onPressed: () => _handleAction(act),
@@ -313,7 +324,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
 
                       // Suggestion Chips
                       if (!isUser && msg.suggestions != null && msg.suggestions!.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.xs),
+                        const SizedBox(height: 6),
                         Padding(
                           padding: const EdgeInsets.only(left: 36.0),
                           child: Wrap(
@@ -322,7 +333,9 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                             children: msg.suggestions!
                                 .map(
                                   (sug) => ActionChip(
-                                    label: Text(sug, style: const TextStyle(fontSize: 11)),
+                                    backgroundColor: AppColors.surfaceVariant,
+                                    side: const BorderSide(color: AppColors.border),
+                                    label: Text(sug, style: const TextStyle(fontSize: 11, color: AppColors.textPrimary)),
                                     onPressed: () => _sendMessage(sug),
                                   ),
                                 )
@@ -340,15 +353,17 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
           // Input Bar with Voice Support
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
-            color: AppColors.surface,
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              border: Border(top: BorderSide(color: AppColors.border)),
+            ),
             child: Row(
               children: [
-                // Voice button
                 IconButton(
                   tooltip: JagoLocalization.get('voice_hint', lang: _selectedLanguage),
                   icon: Icon(
                     _isListeningVoice ? Icons.mic_rounded : Icons.mic_none_rounded,
-                    color: _isListeningVoice ? Colors.red : AppColors.primary,
+                    color: _isListeningVoice ? AppColors.error : AppColors.primary,
                   ),
                   onPressed: _simulateVoiceInput,
                 ),
@@ -357,7 +372,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                     controller: _inputController,
                     decoration: InputDecoration(
                       hintText: JagoLocalization.get('input_hint', lang: _selectedLanguage),
-                      hintStyle: const TextStyle(fontSize: 12),
+                      hintStyle: const TextStyle(fontSize: 13),
                       contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                     ),
                     onSubmitted: (_) => _sendMessage(),
@@ -365,8 +380,12 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 IconButton.filled(
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.surface,
+                  ),
                   onPressed: () => _sendMessage(),
-                  icon: const Icon(Icons.send_rounded),
+                  icon: const Icon(Icons.send_rounded, size: 20),
                 ),
               ],
             ),
@@ -394,7 +413,9 @@ class _QuickChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 3.0),
       child: ActionChip(
         avatar: Icon(icon, size: 14, color: AppColors.primary),
-        label: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+        backgroundColor: AppColors.surfaceVariant,
+        side: const BorderSide(color: AppColors.border),
+        label: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
         onPressed: onTap,
         padding: const EdgeInsets.symmetric(horizontal: 4),
       ),
@@ -414,22 +435,22 @@ class _GrievanceDraftCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.warningBg,
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: Colors.orange.shade300),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.assignment_outlined, size: 16, color: Colors.orange.shade800),
-              const SizedBox(width: 4),
+              const Icon(Icons.assignment_outlined, size: 16, color: AppColors.warning),
+              const SizedBox(width: 6),
               Text(
                 JagoLocalization.get('draft_summary', lang: lang),
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange.shade900),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.warning),
               ),
             ],
           ),
@@ -438,17 +459,18 @@ class _GrievanceDraftCard extends StatelessWidget {
           _GrievanceRow(label: JagoLocalization.get('scheme', lang: lang), value: draft['scheme'] ?? ''),
           _GrievanceRow(label: 'App ID', value: draft['applicationId'] ?? ''),
           _GrievanceRow(label: JagoLocalization.get('description', lang: lang), value: draft['description'] ?? ''),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: AppColors.border),
             ),
             child: Text(
               JagoLocalization.get('submit_disabled', lang: lang),
-              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
+              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
             ),
           ),
         ],

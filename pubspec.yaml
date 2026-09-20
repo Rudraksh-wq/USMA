@@ -50,3 +50,13 @@ flutter:
     - assets/faq/faq.json
     - assets/data/schemes.json
     - assets/data/demo_personas.json
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans.ttf
+    - family: NotoSansDevanagari
+      fonts:
+        - asset: assets/fonts/NotoSansDevanagari.ttf
+    - family: NotoSansOriya
+      fonts:
+        - asset: assets/fonts/NotoSansOriya.ttf

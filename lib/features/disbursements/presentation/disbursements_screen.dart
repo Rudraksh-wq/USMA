@@ -14,12 +14,37 @@ class DisbursementsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Direct Benefit Transfer (DBT)'),
+        title: const Text('Payments & DBT'),
       ),
       body: disbursementsAsync.when(
         data: (disbursements) {
           if (disbursements.isEmpty) {
-            return const Center(child: Text('No disbursement records found.'));
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.account_balance_wallet_outlined, size: 48, color: AppColors.textTertiary),
+                    const SizedBox(height: AppSpacing.md),
+                    const Text(
+                      'No payment records found',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Scholarship amounts will be credited directly to your Aadhaar-linked bank account once approved by the Ministry.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           final totalDisbursed = disbursements
@@ -31,102 +56,132 @@ class DisbursementsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Total Summary Card
+                // Plain Educational Note
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVariant,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline_rounded, size: 18, color: AppColors.primary),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Direct Benefit Transfer (DBT) sends money directly from the government to your Aadhaar-linked bank account via PFMS.',
+                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Warm Total Summary Card
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.success, Color(0xFF15803D)],
-                    ),
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                    boxShadow: AppShadows.card,
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Total DBT Scholarship Credited',
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                        'Total Scholarship Credited',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         '₹${totalDisbursed.toStringAsFixed(0)}',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 28,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
+                      const SizedBox(height: AppSpacing.md),
+                      const Divider(),
                       const SizedBox(height: AppSpacing.sm),
                       const Row(
                         children: [
-                          Icon(Icons.account_balance, color: Colors.white, size: 14),
-                          SizedBox(width: 4),
-                          Text(
-                            'State Bank of India (Aadhaar Seeded)',
-                            style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500),
+                          Icon(Icons.account_balance_outlined, color: AppColors.primary, size: 16),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'State Bank of India (..3819) • Aadhaar Seeded',
+                              style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w500),
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xxl),
+                const SizedBox(height: AppSpacing.xl),
                 const Text(
-                  'PFMS Transaction History',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  'Payment History',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: disbursements.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                   itemBuilder: (context, idx) {
                     final item = disbursements[idx];
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  item.academicInstallment,
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                                ),
-                                StatusBadge(status: item.pfmsStatus),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              item.schemeTitle,
-                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            const Divider(),
-                            const SizedBox(height: AppSpacing.xs),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('UTR / Bank Reference', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-                                    Text(item.utrNumber, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                                  ],
-                                ),
-                                Text(
-                                  '₹${item.amount.toStringAsFixed(0)}',
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                    return Container(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                item.academicInstallment,
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                              ),
+                              StatusBadge(status: item.pfmsStatus),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.schemeTitle,
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          const Divider(),
+                          const SizedBox(height: AppSpacing.xs),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('PFMS Reference', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                  Text(item.utrNumber, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                                ],
+                              ),
+                              Text(
+                                '₹${item.amount.toStringAsFixed(0)}',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },
