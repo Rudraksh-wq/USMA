@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/tokens.dart';
 import '../data/auth_repository.dart';
@@ -125,16 +126,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         )
                       : const Text('Get OTP Verification'),
                 ),
-                const SizedBox(height: AppSpacing.lg),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () {
-                      context.go(AppRoutes.dashboard);
-                    },
-                    icon: const Icon(Icons.visibility_outlined, size: 18),
-                    label: const Text('Continue as Guest / Demo Student'),
+                if (AppConfig.isDemo) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  Center(
+                    child: TextButton.icon(
+                      key: const Key('demo_student_button'),
+                      onPressed: () async {
+                        await ref.read(authRepositoryProvider).startSimulatedSession();
+                        if (context.mounted) {
+                          context.go(AppRoutes.dashboard);
+                        }
+                      },
+                      icon: const Icon(Icons.science_outlined, size: 18, color: Colors.purple),
+                      label: Text(
+                        '${AppConfig.simulatedLabel}: Continue as Guest / Demo Student',
+                        style: const TextStyle(color: Colors.purple, fontWeight: FontWeight.w600),
+                      ),
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: AppSpacing.xxl),
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),

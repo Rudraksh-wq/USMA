@@ -303,3 +303,18 @@ final currentUserProvider = Provider<UserModel?>((ref) {
   final asyncUser = ref.watch(currentUserStreamProvider);
   return asyncUser.value ?? ref.watch(authRepositoryProvider).currentUser;
 });
+
+final isSignedInProvider = Provider<bool>((ref) {
+  return ref.watch(currentUserProvider) != null;
+});
+
+/// In demo mode, allows toggling the "Demo: view as admin" mode.
+final demoAdminModeProvider = StateProvider<bool>((ref) => false);
+
+final isAdminUserProvider = Provider<bool>((ref) {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return false;
+  if (user.role == UserRole.admin) return true;
+  if (AppConfig.isDemo && ref.watch(demoAdminModeProvider)) return true;
+  return false;
+});

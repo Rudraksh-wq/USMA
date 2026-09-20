@@ -1,3 +1,8 @@
+enum UserRole {
+  student,
+  admin,
+}
+
 class UserModel {
   final String id;
   final String name;
@@ -15,6 +20,7 @@ class UserModel {
   final String? apaarId;
   final String educationLevel;
   final bool isScheduledTribe;
+  final UserRole role;
 
   const UserModel({
     required this.id,
@@ -33,6 +39,7 @@ class UserModel {
     this.apaarId,
     this.educationLevel = 'post_matric',
     this.isScheduledTribe = true,
+    this.role = UserRole.student,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map, String docId) {
@@ -53,6 +60,7 @@ class UserModel {
       apaarId: map['apaarId']?.toString(),
       educationLevel: map['educationLevel']?.toString() ?? 'post_matric',
       isScheduledTribe: map['isScheduledTribe'] != false,
+      role: map['role'] == 'admin' ? UserRole.admin : UserRole.student,
     );
   }
 
@@ -73,6 +81,7 @@ class UserModel {
       'apaarId': apaarId,
       'educationLevel': educationLevel,
       'isScheduledTribe': isScheduledTribe,
+      'role': role.name,
     };
   }
 
@@ -92,6 +101,7 @@ class UserModel {
     String? apaarId,
     String? educationLevel,
     bool? isScheduledTribe,
+    UserRole? role,
   }) {
     return UserModel(
       id: id,
@@ -110,6 +120,7 @@ class UserModel {
       apaarId: apaarId ?? this.apaarId,
       educationLevel: educationLevel ?? this.educationLevel,
       isScheduledTribe: isScheduledTribe ?? this.isScheduledTribe,
+      role: role ?? this.role,
     );
   }
 }

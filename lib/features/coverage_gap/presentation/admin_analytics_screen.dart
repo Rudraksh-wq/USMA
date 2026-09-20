@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../../../core/widgets/error_view.dart';
+import '../../auth/data/auth_repository.dart';
 import '../data/coverage_gap_analytics_repository.dart';
 
 class AdminAnalyticsScreen extends ConsumerStatefulWidget {
@@ -37,6 +39,45 @@ class _AdminAnalyticsScreenState extends ConsumerState<AdminAnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = ref.watch(isAdminUserProvider);
+    if (!isAdmin) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Access Denied')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.lock_outline, size: 64, color: AppColors.error),
+                const SizedBox(height: AppSpacing.md),
+                const Text(
+                  'Admin Access Required',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                const Text(
+                  'This section is restricted to Ministry Officers and System Administrators.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+                if (AppConfig.isDemo) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      ref.read(demoAdminModeProvider.notifier).state = true;
+                    },
+                    icon: const Icon(Icons.shield_outlined),
+                    label: const Text('Demo: View as Admin'),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final summaryAsync = ref.watch(adminAnalyticsSummaryProvider);
     final recordsAsync = ref.watch(coverageGapRecordsProvider);
 

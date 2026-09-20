@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_localization.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/offline_banner.dart';
+import '../../settings/data/language_provider.dart';
 
 class MainScaffold extends ConsumerWidget {
   final Widget child;
@@ -50,6 +52,7 @@ class MainScaffold extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = _calculateSelectedIndex(context);
+    final langCode = ref.watch(languageCodeProvider);
 
     return Scaffold(
       body: Column(
@@ -64,31 +67,31 @@ class MainScaffold extends ConsumerWidget {
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textTertiary,
         type: BottomNavigationBarType.fixed,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home_rounded),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home_rounded),
+            label: AppLocalization.tr('nav_home', lang: langCode),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.school_outlined),
-            activeIcon: Icon(Icons.school_rounded),
-            label: 'Schemes',
+            icon: const Icon(Icons.school_outlined),
+            activeIcon: const Icon(Icons.school_rounded),
+            label: AppLocalization.tr('nav_schemes', lang: langCode),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.folder_shared_outlined),
-            activeIcon: Icon(Icons.folder_shared_rounded),
-            label: 'Wallet',
+            icon: const Icon(Icons.folder_shared_outlined),
+            activeIcon: const Icon(Icons.folder_shared_rounded),
+            label: AppLocalization.tr('nav_wallet', lang: langCode),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.currency_rupee_rounded),
-            activeIcon: Icon(Icons.currency_rupee_rounded),
-            label: 'DBT',
+            icon: const Icon(Icons.currency_rupee_rounded),
+            activeIcon: const Icon(Icons.currency_rupee_rounded),
+            label: AppLocalization.tr('nav_dbt', lang: langCode),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.smart_toy_outlined),
-            activeIcon: Icon(Icons.smart_toy_rounded),
-            label: 'Saathi AI',
+            icon: const Icon(Icons.smart_toy_outlined),
+            activeIcon: const Icon(Icons.smart_toy_rounded),
+            label: AppLocalization.tr('nav_saathi', lang: langCode),
           ),
         ],
       ),

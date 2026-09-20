@@ -12,6 +12,7 @@ class UsmaApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final currentLocale = ref.watch(currentLocaleProvider);
 
     return MaterialApp.router(
       title: 'USMA — Unified Scholarship Mobile Application',
@@ -19,6 +20,7 @@ class UsmaApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      locale: currentLocale,
       routerConfig: router,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

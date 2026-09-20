@@ -1,0 +1,168 @@
+// ============================================================
+// USMA — App Localization Service
+// app_localization.dart
+//
+// Structured Multilingual Localization (English, Hindi, Odia)
+// Supporting core student screens:
+//   - Bottom Navigation (MainScaffold)
+//   - Settings Screen
+//   - Dashboard Screen
+// ============================================================
+
+class AppLocalization {
+  static const String langEnglish = 'en';
+  static const String langHindi = 'hi';
+  static const String langOdia = 'or';
+
+  static const List<String> supportedLanguages = [
+    langEnglish,
+    langHindi,
+    langOdia,
+  ];
+
+  static const Map<String, String> languageNames = {
+    'en': 'English',
+    'hi': 'हिन्दी (Hindi)',
+    'or': 'ଓଡ଼ିଆ (Odia)',
+    'sat': 'ᱥᱟᱱᱛᱟᱲᱤ (Santhali)',
+    'te': 'తెలుగు (Telugu)',
+    'bn': 'বাংলা (Bengali)',
+  };
+
+  static const Map<String, String> languageCodeFromDisplay = {
+    'English': 'en',
+    'हिन्दी (Hindi)': 'hi',
+    'ਓਡੀଆ (Odia)': 'or',
+    'ଓଡ଼ିଆ (Odia)': 'or',
+    'ᱥᱟᱱᱛᱟᱲᱤ (Santhali)': 'sat',
+    'తెలుగు (Telugu)': 'te',
+    'বাংলা (Bengali)': 'bn',
+  };
+
+  static const Map<String, Map<String, String>> _strings = {
+    langEnglish: {
+      // Navigation
+      'nav_home': 'Home',
+      'nav_schemes': 'Schemes',
+      'nav_wallet': 'Wallet',
+      'nav_dbt': 'DBT',
+      'nav_saathi': 'Saathi AI',
+
+      // Settings
+      'settings_title': 'App Settings',
+      'settings_accessibility': 'Accessibility & Language',
+      'settings_display_language': 'App Display Language',
+      'settings_dark_mode': 'Dark Mode',
+      'settings_dark_mode_sub': 'Reduce glare in low-light conditions',
+      'settings_about': 'About Ministry Portal',
+      'settings_version': 'Application Version',
+      'settings_version_val': 'USMA v1.0.0+1 (Ministry Production Build)',
+      'settings_terms': 'Terms & Ministry Guidelines',
+      'settings_terms_val': 'Ministry of Tribal Affairs • Government of India',
+      'settings_coverage_notice': 'Multilingual Coverage Notice',
+      'settings_coverage_desc': 'Translated screens: Navigation, Settings, Dashboard, and JAGO AI Assistant. Other sections currently display in English.',
+
+      // Dashboard
+      'dash_welcome': 'Welcome back',
+      'dash_quick_actions': 'Quick Actions',
+      'dash_unified_verification': 'Unified Verification',
+      'dash_unified_verification_sub': 'Multi-Source Status',
+      'dash_officer_analytics': 'Officer Analytics',
+      'dash_officer_analytics_sub': 'Coverage Gap Matrix',
+      'dash_statutory_check': 'Statutory Rule Check',
+      'dash_eligibility_engine': 'Eligibility Engine',
+      'dash_apply_scholarship': 'Apply for Scholarship',
+      'dash_explore_schemes': 'Explore all 5 MoTA programs',
+      'dash_active_applications': 'Active Applications',
+      'dash_dbt_tracker': 'DBT Tracker',
+      'dash_deficiency_center': 'Deficiency Center',
+      'dash_action_required': 'Action Required',
+      'dash_recommended_schemes': 'Recommended Schemes for You',
+    },
+    langHindi: {
+      // Navigation
+      'nav_home': 'होम',
+      'nav_schemes': 'योजनाएं',
+      'nav_wallet': 'वॉलेट',
+      'nav_dbt': 'डीबीटी (DBT)',
+      'nav_saathi': 'साथी AI',
+
+      // Settings
+      'settings_title': 'ऐप सेटिंग्स',
+      'settings_accessibility': 'सुगमता एवं भाषा',
+      'settings_display_language': 'ऐप प्रदर्शन भाषा',
+      'settings_dark_mode': 'डार्क मोड',
+      'settings_dark_mode_sub': 'कम रोशनी में आंखों के तनाव को कम करें',
+      'settings_about': 'मंत्रालय पोर्टल के बारे में',
+      'settings_version': 'एप्लिकेशन संस्करण',
+      'settings_version_val': 'यूएसएमए v1.0.0+1 (मंत्रालय प्रोडक्शन संस्करण)',
+      'settings_terms': 'नियम एवं मंत्रालय दिशानिर्देश',
+      'settings_terms_val': 'जनजातीय कार्य मंत्रालय • भारत सरकार',
+      'settings_coverage_notice': 'बहुभाषी कवरेज सूचना',
+      'settings_coverage_desc': 'अनुवादित स्क्रीन: नेविगेशन, सेटिंग्स, डैशबोर्ड, और जागो AI सहायक। अन्य खंड वर्तमान में अंग्रेजी में प्रदर्शित हैं।',
+
+      // Dashboard
+      'dash_welcome': 'वापसी पर स्वागत है',
+      'dash_quick_actions': 'त्वरित कार्य',
+      'dash_unified_verification': 'एकीकृत सत्यापन',
+      'dash_unified_verification_sub': 'बहु-स्रोत स्थिति',
+      'dash_officer_analytics': 'अधिकारी एनालिटिक्स',
+      'dash_officer_analytics_sub': 'कवरेज अंतर मैट्रिक्स',
+      'dash_statutory_check': 'वैधानिक नियम जांच',
+      'dash_eligibility_engine': 'पात्रता इंजन',
+      'dash_apply_scholarship': 'छात्रवृत्ति के लिए आवेदन करें',
+      'dash_explore_schemes': 'सभी 5 MoTA कार्यक्रमों को देखें',
+      'dash_active_applications': 'सक्रिय आवेदन',
+      'dash_dbt_tracker': 'डीबीटी ट्रैकर',
+      'dash_deficiency_center': 'कमी निवारण केंद्र',
+      'dash_action_required': 'कार्रवाई आवश्यक',
+      'dash_recommended_schemes': 'आपके लिए अनुशंसित योजनाएं',
+    },
+    langOdia: {
+      // Navigation
+      'nav_home': 'ମୁଖ୍ୟ ପୃଷ୍ଠା',
+      'nav_schemes': 'ଯୋଜନାସମୂହ',
+      'nav_wallet': 'ୱାଲେଟ୍',
+      'nav_dbt': 'ଡିବିଟି (DBT)',
+      'nav_saathi': 'ସାଥୀ AI',
+
+      // Settings
+      'settings_title': 'ଆପ୍ ସେଟିଙ୍ଗ୍ସ',
+      'settings_accessibility': 'ସୁବିଧା ଓ ଭାଷା',
+      'settings_display_language': 'ଆପ୍ ପ୍ରଦର୍ଶନ ଭାଷା',
+      'settings_dark_mode': 'ଡାର୍କ ମୋଡ୍',
+      'settings_dark_mode_sub': 'ଅଳ୍ପ ଆଲୋକରେ ଆଖିର ଚାପ ହ୍ରାସ କରନ୍ତୁ',
+      'settings_about': 'ମନ୍ତ୍ରଣାଳୟ ପୋର୍ଟାଲ୍ ବିଷୟରେ',
+      'settings_version': 'ଆପ୍ଲିକେସନ୍ ସଂସ୍କରଣ',
+      'settings_version_val': 'USMA v1.0.0+1 (ମନ୍ତ୍ରଣାଳୟ ପ୍ରଡକ୍ସନ୍ ବିଲ୍ଡ)',
+      'settings_terms': 'ନିୟମାବଳୀ ଓ ମନ୍ତ୍ରଣାଳୟ ମାର୍ଗଦର୍ଶିକା',
+      'settings_terms_val': 'ଆଦିବାସୀ ବ୍ୟାପାର ମନ୍ତ୍ରଣାଳୟ • ଭାରତ ସରକାର',
+      'settings_coverage_notice': 'ବହୁଭାଷୀ କଭରେଜ୍ ସୂଚନା',
+      'settings_coverage_desc': 'ଅନୁବାଦିତ ପୃଷ୍ଠା: ନେଭିଗେସନ୍, ସେଟିଙ୍ଗ୍ସ, ଡ୍ୟାସବୋର୍ଡ, ଏବଂ ଜାଗୋ AI ସହାୟକ। ଅନ୍ୟାନ୍ୟ ବିଭାଗ ବର୍ତ୍ତମାନ ଇଂରାଜୀରେ ପ୍ରଦର୍ଶିତ।',
+
+      // Dashboard
+      'dash_welcome': 'ସ୍ୱାଗତମ୍',
+      'dash_quick_actions': 'ଦ୍ରୁତ କାର୍ଯ୍ୟାନୁଷ୍ଠାନ',
+      'dash_unified_verification': 'ଏକୀକୃତ ଯାଞ୍ଚ',
+      'dash_unified_verification_sub': 'ବହୁ-ଉତ୍ସ ସ୍ଥିତି',
+      'dash_officer_analytics': 'ଅଧିକାରୀ ଆନାଲିଟିକ୍ସ',
+      'dash_officer_analytics_sub': 'କଭରେଜ୍ ଅନ୍ତର ମ୍ୟାଟ୍ରିକ୍ସ',
+      'dash_statutory_check': 'ସରକାରୀ ନିୟମ ଯାଞ୍ଚ',
+      'dash_eligibility_engine': 'ଯୋଗ୍ୟତା ଇଞ୍ଜିନ୍',
+      'dash_apply_scholarship': 'ଛାତ୍ରବୃତ୍ତି ପାଇଁ ଆବେଦନ କରନ୍ତୁ',
+      'dash_explore_schemes': 'ସମସ୍ତ ୫ଟି MoTA କାର୍ଯ୍ୟକ୍ରମ ଦେଖନ୍ତୁ',
+      'dash_active_applications': 'ସକ୍ରିୟ ଆବେଦନ',
+      'dash_dbt_tracker': 'ଡିବିଟି ଟ୍ରାକର୍',
+      'dash_deficiency_center': 'ତ୍ରୁଟି ସଂଶୋଧନ କେନ୍ଦ୍ର',
+      'dash_action_required': 'ପଦକ୍ଷେପ ଆବଶ୍ୟକ',
+      'dash_recommended_schemes': 'ଆପଣଙ୍କ ପାଇଁ ସୁପାରିଶ କରାଯାଇଥିବା ଯୋଜନା',
+    },
+  };
+
+  /// Retrieves a localized string by key and language code.
+  /// Falls back to English if the translation is not present.
+  static String tr(String key, {String lang = langEnglish}) {
+    final langMap = _strings[lang] ?? _strings[langEnglish]!;
+    return langMap[key] ?? _strings[langEnglish]?[key] ?? key;
+  }
+}

@@ -1,3 +1,41 @@
+> [!IMPORTANT]
+> **Staleness Notice (2026-09-20)**
+>
+> This document was written during an initial planning pass before any P0–P4 code was executed.
+> Many of its findings have since been **resolved or superseded** by actual implementation work.
+> The authoritative current state is in [`docs/PROGRESS.md`](PROGRESS.md).
+>
+> **Resolved items — do NOT redo:**
+>
+> | Plan finding | Current status |
+> |---|---|
+> | Splash always `go(/dashboard)` regardless of auth | ✅ Fixed — `SplashScreen` now checks auth state; GoRouter `redirect` callback enforces login |
+> | No GoRouter redirect callback | ✅ Fixed — `app_router.dart` has `redirect:` that gates all protected routes |
+> | `demo_user_001` hard-coded everywhere | ✅ Partially resolved — auth flow uses `currentUserProvider`; some demo seed data may still reference it |
+> | Empty `catch (_) {}` swallowing Firestore errors | ✅ Fixed — repos now use `ErrorMapper.map(e)` and throw `Failure` subclasses |
+> | Eligibility engine = widget filter only | ✅ Fixed — `MoTAEligibilityEngine` is a pure-Dart statutory rule engine with income ceilings, category, institution, document checks |
+> | Scheme income ceilings wrong vs tribal.nic.in | ✅ Fixed — Pre-Matric ₹2.5L, Post-Matric ₹2.5L, Top Class ₹6L, NOS ₹6L now correct |
+> | `image_picker` / `file_picker` unused | ✅ Fixed — `documents_screen.dart` uses `file_picker` for upload; `image_picker` for camera capture |
+> | `uploadDocument` never called | ✅ Fixed — FAB on documents screen → `_UploadDocumentSheet` → `DocumentUploadService` → `LiveDocumentsRepository.uploadDocument()` with `putData()` |
+> | `LICENSE` file missing | ✅ Created — MIT license |
+> | `requirements.txt` in Flutter repo | ✅ Deleted |
+> | `firebase.json` references missing `functions/` and `storage.rules` | ✅ Fixed — those blocks removed until the files exist |
+> | Hive init only, no boxes opened | ⚠️ Still true — Hive caching is roadmap (Prompt 2 Phase D) |
+> | FCM dependency unused | ⚠️ Still true — `firebase_messaging` not imported anywhere in Dart code |
+> | Encrypted storage claim | ⚠️ Still false — SHA-256 is integrity hashing, not encryption; README now says so honestly |
+> | Chatbot imports broken `api_keys.dart` | ✅ Fixed — chatbot reads `String.fromEnvironment('GEMINI_API_KEY')` |
+> | `lib/core/router` vs `lib/core/routing` path | ⚠️ Actual path remains `lib/core/routing/` — rename deferred |
+> | `AppErrorView` vs `ErrorView` naming | ⚠️ Not renamed — alias approach deferred |
+> | Multilingual support disconnected from settings | ✅ Fixed — `languageCodeProvider` → `currentLocaleProvider` → `MaterialApp.router(locale:)` wired; settings picker persists to `SharedPreferences` |
+>
+> **Items still valid / not yet started:**
+> - P0 `AppConfig` / `DataMode` provider (demo vs live switching)
+> - P0 Firestore rules unit tests (`rules_test/`)
+> - P2 Live source-system adapters (NSP, SFMP, NOS portal)
+> - P3 Link existing application flow, family/multi-child, deficiency centre
+> - P4 `storage.rules`, live DigiLocker API, consent subcollection
+> - All "Not verified" items at the bottom of this document remain unverified
+
 # PLAN — Prompt 1
 
 Wait for **go** before any P0–P4 code. Prompt 2 is out of scope until Prompt 1’s final gate is green.

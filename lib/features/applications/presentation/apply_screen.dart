@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/errors/failures.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/tokens.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/schemes_repository.dart';
 import '../data/applications_repository.dart';
 import '../domain/models/application_model.dart';
+import '../domain/scholarship_uniqueness.dart';
 
 class ApplyScreen extends ConsumerStatefulWidget {
   final String schemeId;
@@ -38,11 +40,64 @@ class _ApplyScreenState extends ConsumerState<ApplyScreen> {
     setState(() => _isSubmitting = true);
     try {
       final user = ref.read(currentUserProvider);
+      final userId = user?.id ?? 'demo_user_001';
+
+      // 1. Fetch user's existing applications via repository / provider
+      final repo = ref.read(applicationsRepositoryProvider);
+      final existingApps = await repo.getApplications(userId);
+
+      // 2. Uniqueness pre-check
+      const uniqueness = ScholarshipUniqueness();
+      final conflict = uniqueness.conflictIfApplying(
+        existing: existingApps,
+        userId: userId,
+      );
+
+      if (conflict != null) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: AppColors.error),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Application Blocked',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              content: Text(
+                conflict.message,
+                style: const TextStyle(fontSize: 14, height: 1.4),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Dismiss'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    context.go(AppRoutes.applications);
+                  },
+                  child: const Text('View Active Application'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+
       final appId = 'APP-2026-ST-${(1000 + DateTime.now().millisecond % 9000)}';
 
       final newApp = ApplicationModel(
         id: appId,
-        userId: user?.id ?? 'demo_user_001',
+        userId: userId,
         schemeId: widget.schemeId,
         schemeTitle: schemeTitle,
         academicYear: _academicYearController.text.trim(),
@@ -68,7 +123,6 @@ class _ApplyScreenState extends ConsumerState<ApplyScreen> {
         ],
       );
 
-      final repo = ref.read(applicationsRepositoryProvider);
       await repo.submitApplication(newApp);
 
       ref.invalidate(userApplicationsProvider);
@@ -93,6 +147,43 @@ class _ApplyScreenState extends ConsumerState<ApplyScreen> {
                   context.go(AppRoutes.applications);
                 },
                 child: const Text('Track Application'),
+              ),
+            ],
+          ),
+        );
+      }
+    } on ConflictFailure catch (conflict) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, color: AppColors.error),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Application Blocked',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              conflict.message,
+              style: const TextStyle(fontSize: 14, height: 1.4),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Dismiss'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.go(AppRoutes.applications);
+                },
+                child: const Text('View Active Application'),
               ),
             ],
           ),

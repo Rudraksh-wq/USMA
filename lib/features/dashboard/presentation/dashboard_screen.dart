@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/config/app_config.dart';
+import '../../../core/localization/app_localization.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/tokens.dart';
+import '../../settings/data/language_provider.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../applications/data/applications_repository.dart';
@@ -147,6 +150,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+    final langCode = ref.watch(languageCodeProvider);
     final applicationsAsync = ref.watch(userApplicationsProvider);
     final disbursementsAsync = ref.watch(userDisbursementsProvider);
     final deficienciesAsync = ref.watch(userDeficienciesProvider);
@@ -366,8 +370,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: _buildActionCard(
                       context,
                       icon: Icons.checklist_rtl_rounded,
-                      title: 'Eligibility Engine',
-                      subtitle: 'Statutory Rule Check',
+                      title: AppLocalization.tr('dash_eligibility_engine', lang: langCode),
+                      subtitle: AppLocalization.tr('dash_statutory_check', lang: langCode),
                       color: AppColors.secondary,
                       onTap: () => context.push(AppRoutes.eligibility),
                     ),
@@ -381,8 +385,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: _buildActionCard(
                       context,
                       icon: Icons.hub_outlined,
-                      title: 'Unified Verification',
-                      subtitle: 'Multi-Source Status',
+                      title: AppLocalization.tr('dash_unified_verification', lang: langCode),
+                      subtitle: AppLocalization.tr('dash_unified_verification_sub', lang: langCode),
                       color: AppColors.info,
                       onTap: () => context.push(AppRoutes.verification),
                     ),
@@ -392,14 +396,52 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: _buildActionCard(
                       context,
                       icon: Icons.analytics_outlined,
-                      title: 'Officer Analytics',
-                      subtitle: 'Coverage Gap Matrix',
+                      title: AppLocalization.tr('dash_officer_analytics', lang: langCode),
+                      subtitle: AppLocalization.tr('dash_officer_analytics_sub', lang: langCode),
                       color: AppColors.gold,
                       onTap: () => context.push(AppRoutes.adminAnalytics),
                     ),
                   ),
                 ],
               ),
+              if (AppConfig.isDemo) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade50,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: Colors.purple.shade200),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.admin_panel_settings_outlined, size: 20, color: Colors.purple.shade700),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            '${AppConfig.simulatedLabel}: View as Admin',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.purple.shade900,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Switch.adaptive(
+                        key: const Key('demo_admin_toggle'),
+                        value: ref.watch(demoAdminModeProvider),
+                        activeColor: Colors.purple.shade700,
+                        onChanged: (val) {
+                          ref.read(demoAdminModeProvider.notifier).state = val;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.xl),
 
               // 2. DEFICIENCY CENTER (ACTION REQUIRED)

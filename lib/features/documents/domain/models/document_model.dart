@@ -10,6 +10,10 @@ class DocumentModel {
   final DateTime issuedDate;
   final DateTime uploadedAt;
   final int? sizeBytes;
+  /// SHA-256 hex digest of the uploaded file bytes (client-side integrity check).
+  final String? sha256;
+  /// Firebase Storage path: 'users/{uid}/documents/{docId}' (null for DigiLocker docs).
+  final String? storagePath;
 
   const DocumentModel({
     required this.id,
@@ -23,6 +27,8 @@ class DocumentModel {
     required this.issuedDate,
     required this.uploadedAt,
     this.sizeBytes,
+    this.sha256,
+    this.storagePath,
   });
 
   factory DocumentModel.fromMap(Map<String, dynamic> map, String docId) {
@@ -42,6 +48,8 @@ class DocumentModel {
           ? DateTime.tryParse(map['uploadedAt'].toString()) ?? DateTime.now()
           : DateTime.now(),
       sizeBytes: map['sizeBytes'],
+      sha256: map['sha256']?.toString(),
+      storagePath: map['storagePath']?.toString(),
     );
   }
 
@@ -57,6 +65,8 @@ class DocumentModel {
       'issuedDate': issuedDate.toIso8601String(),
       'uploadedAt': uploadedAt.toIso8601String(),
       'sizeBytes': sizeBytes,
+      'sha256': sha256,
+      'storagePath': storagePath,
     };
   }
 }

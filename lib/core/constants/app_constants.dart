@@ -55,5 +55,13 @@ class AppConstants {
   static const String usersCollection = 'users';
   static const String schemesCollection = 'schemes';
 
-  static const int maxFileSizeBytes = 5 * 1024 * 1024; // 5MB
+  static const int maxFileSizeBytes = 2 * 1024 * 1024; // 2 MB
+
+  /// File types accepted for manual document uploads.
+  static const List<String> allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+  static const List<String> allowedMimeTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+  ];
 }

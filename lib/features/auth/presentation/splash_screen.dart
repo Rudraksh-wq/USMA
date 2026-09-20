@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/routing/app_router.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/tokens.dart';
+import '../data/auth_repository.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -20,7 +22,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     super.initState();
     _timer = Timer(const Duration(milliseconds: 1400), () {
       if (mounted) {
-        context.go(AppRoutes.dashboard);
+        ref.read(splashCompletedProvider.notifier).state = true;
+        final isSignedIn = ref.read(isSignedInProvider);
+        if (isSignedIn) {
+          context.go(AppRoutes.dashboard);
+        } else {
+          context.go(AppRoutes.login);
+        }
       }
     });
   }

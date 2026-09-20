@@ -6,7 +6,10 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../../../core/widgets/error_view.dart';
+import '../../auth/data/auth_repository.dart';
+import '../data/applications_repository.dart';
 import '../data/schemes_repository.dart';
+import '../domain/scholarship_uniqueness.dart';
 
 class SchemeDetailScreen extends ConsumerWidget {
   final String schemeId;
@@ -254,8 +257,61 @@ class SchemeDetailScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.xxl),
 
                 ElevatedButton.icon(
-                  onPressed: () {
-                    context.push(AppRoutes.applySchemePath(scheme.schemeId));
+                  onPressed: () async {
+                    final user = ref.read(currentUserProvider);
+                    final userId = user?.id ?? 'demo_user_001';
+                    final repo = ref.read(applicationsRepositoryProvider);
+                    final existingApps = await repo.getApplications(userId);
+
+                    const uniqueness = ScholarshipUniqueness();
+                    final conflict = uniqueness.conflictIfApplying(
+                      existing: existingApps,
+                      userId: userId,
+                    );
+
+                    if (conflict != null) {
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Row(
+                              children: [
+                                Icon(Icons.warning_amber_rounded, color: AppColors.error),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Application Blocked',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            content: Text(
+                              conflict.message,
+                              style: const TextStyle(fontSize: 14, height: 1.4),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                child: const Text('Dismiss'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                  context.go(AppRoutes.applications);
+                                },
+                                child: const Text('View Active Application'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return;
+                    }
+
+                    if (context.mounted) {
+                      context.push(AppRoutes.applySchemePath(scheme.schemeId));
+                    }
                   },
                   icon: const Icon(Icons.send_rounded),
                   label: const Text('Apply Now (e-Verification)'),

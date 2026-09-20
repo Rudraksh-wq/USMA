@@ -8,8 +8,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/integration_orchestrator.dart';
-import '../domain/integration_provider.dart';
+import '../data/unified_verification_orchestrator.dart';
+import '../domain/integration_provider.dart' show GovernmentSystem, GovernmentSystemLabel;
+
 
 class IntegrationStatusScreen extends ConsumerWidget {
   const IntegrationStatusScreen({super.key});

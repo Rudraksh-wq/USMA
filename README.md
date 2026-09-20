@@ -1,5 +1,4 @@
 <div align="center">
-  <!-- You can replace this banner image with an assets/banner.png if available -->
   <h1>🎓 USMA</h1>
   <h3>Unified Scholarship Mobile Application</h3>
   <p><strong>A Unified Single-Window Mobile Platform for MoTA ST Scholarships</strong></p>
@@ -18,6 +17,11 @@
 > **Target Beneficiaries:** ST Students, Educational Institutions, Verification Officers, and MoTA Administrators.  
 > **Core Objective:** Eliminate fragmented scholarship portals, reduce application drop-off rates, provide real-time DBT tracking, and enable offline-ready multilingual accessibility.
 
+> **Implementation Honesty Key**  
+> `✅ Implemented` — real code running in the app today.  
+> `🟡 Simulated` — feature exists in the UI with clearly labelled demo/mock data; no real external API is called.  
+> `🔲 Roadmap` — planned but not yet written; not claimed as working.
+
 ---
 
 ## 📑 Table of Contents
@@ -26,7 +30,7 @@
 - [🏗️ System Architecture](#️-system-architecture)
 - [📂 Repository Structure](#-repository-structure)
 - [⚙️ Installation & Setup](#️-installation--setup)
-- [📱 APK Release & Testing](#-apk-release--testing)
+- [📱 Build & Testing](#-build--testing)
 - [🎯 SIH Compliance Verification](#-sih-compliance-verification)
 - [📄 License](#-license)
 
@@ -37,12 +41,13 @@
 Currently, Scheduled Tribe (ST) students face steep hurdles navigating disparate state and central scholarship portals, ambiguous eligibility criteria, untracked Direct Benefit Transfer (DBT) disbursements, and poor mobile network connectivity in remote tribal pockets.
 
 **USMA (Unified Scholarship Mobile Application)** addresses these gaps with a student-centric, cloud-native Flutter mobile application tailored to MoTA scholarship schemes:
-1. **Consolidated Single-Window Dashboard:** Complete visibility into all central & state ST scholarship schemes with deadline alerts and eligibility match scoring.
-2. **Dynamic Eligibility Engine:** Real-time eligibility evaluation based on academic, income, domicile, and quota criteria before document submission.
-3. **End-to-End DBT & Disbursement Tracker:** Stage-by-stage transparent tracking from institutional verification to bank PFMS credit.
-4. **Digital Document Vault:** Secure file uploads, caching, and document status verification eliminating repeated physical paperwork.
-5. **Contextual AI Chatbot & Multilingual Support:** In-app multilingual query resolution and FAQ assistance for first-generation scholars.
-6. **Offline-Resilient Architecture:** Local caching powered by Hive ensuring application status and submitted profiles remain accessible even in poor connectivity zones.
+
+1. **Consolidated Single-Window Dashboard** `✅` — Complete visibility into all central & state ST scholarship schemes with deadline alerts and eligibility match scoring.
+2. **Dynamic Eligibility Engine** `✅` — Real-time statutory rule evaluation before document submission.
+3. **End-to-End DBT & Disbursement Tracker** `✅` — Stage-by-stage transparent tracking from institutional verification to bank PFMS credit (demo data in current build).
+4. **Digital Document Vault** `✅` — SHA-256 integrity-checked file uploads to Firebase Storage; DigiLocker sync is `🟡 Simulated` (no government endpoint is called).
+5. **Contextual AI Chatbot & Multilingual Support** `✅` — Offline FAQ engine in EN/हिन्दी/ଓଡ଼ିଆ; Gemini AI mode active only when `--dart-define=GEMINI_API_KEY=…` is supplied.
+6. **Offline-Resilient Architecture** `🔲 Roadmap` — Hive is initialised (`Hive.initFlutter()`) but no boxes are opened yet; persistent offline caching is planned for a future sprint.
 
 ---
 
@@ -55,46 +60,65 @@ USMA implements accurate data modeling, statutory rule verification, and portal 
 | 1 | **Pre-Matric Scholarship for ST Students** | Class IX & X | ₹2,50,000 / yr | Monthly maintenance (₹225 Day / ₹525 Hosteller) | State Portal / MoTA DBT Tribal |
 | 2 | **Post-Matric Scholarship for ST Students (PMS-ST)** | Class XI to Ph.D | ₹2,50,000 / yr | Compulsory course fees + Monthly allowance (₹230 to ₹1,200) | NSP / State DBT Portal |
 | 3 | **National Scholarship / Top Class Education for ST Students** | 265 Notified Premier Institutes (IIT/NIT/IIM/AIIMS/NLU) | ₹6,00,000 / yr | Full tuition fee + ₹3,000/mo living + ₹5,000 books + ₹45,000 computer grant | National Scholarship Portal (NSP) |
-| 4 | **National Fellowship for ST Students (NFST)** | Regular M.Phil & Ph.D | ₹6,00,000 / yr | 750 slots/yr; Monthly fellowship (₹31k JRF / ₹35k SRF) + HRA + Contingency | MoTA Fellowship Portal |
-| 5 | **National Overseas Scholarship for ST Students (NOS)** | Master's, Ph.D & Post-Doc Abroad (Top 500 QS) | ₹6,00,000 / yr | 20 slots/yr (17 ST + 3 PVTG); Full foreign tuition + USD 15,400/yr + Airfare | MoTA Overseas Portal |
+| 4 | **National Fellowship for ST Students (NFST)** | Regular M.Phil & Ph.D | No income ceiling (fellowship; ₹6L ceiling shown in FAQ is unconfirmed — `needsVerification: true`) | 750 slots/yr; Monthly fellowship (₹25k M.Phil / ₹28k Ph.D per MoTA HTML) + HRA + Contingency | MoTA Fellowship Portal |
+| 5 | **National Overseas Scholarship for ST Students (NOS)** | Master's, Ph.D & Post-Doc Abroad (Top 500 QS) | ₹6,00,000 / yr | 20 slots/yr (17 ST + 3 PVTG); Full foreign tuition + USD 15,400/yr + Airfare (`needsVerification: true` for USD figures) | MoTA Overseas Portal |
 
 ---
 
 ## ✨ Key Modules & Technical Features
 
-### 1. 🔍 MoTA Scholarship Explorer (`features/applications`)
+### 1. 🔍 MoTA Scholarship Explorer (`features/applications`) `✅`
 - Single-window discovery platform for all 5 statutory MoTA scholarship schemes.
-- Visual cards displaying target criteria, income ceilings, main financial benefits, application route, and instant personal eligibility evaluation.
+- Visual cards displaying target criteria, income ceilings, financial benefits, application route, and instant personal eligibility evaluation.
 - Official Ministry attribution indicators (`Source: Ministry of Tribal Affairs`).
-- Unverified items explicitly marked as `"Information not available / requires verification"`.
 
-### 2. 🎯 Dynamic Scheme-Specific Eligibility Engine (`features/eligibility`)
-- Replaces generic filtering with real-world statutory rule validation evaluating:
+### 2. 🎯 Dynamic Scheme-Specific Eligibility Engine (`features/eligibility`) `✅`
+- Pure-Dart `MoTAEligibilityEngine` with real-world statutory rule validation:
   - **Community Eligibility:** Valid ST / PVTG tribal category requirement.
-  - **Income Ceilings:** Validates ₹2.50L ceiling (Pre/Post-Matric) vs ₹6.00L ceiling (Top Class, NFST, NOS).
-  - **Educational & Institutional Fit:** Differentiates school, college, 265 notified premier institutions, M.Phil/Ph.D research, and top 500 QS foreign universities.
-  - **Document Completeness:** Checks for Caste Certificate, Income Certificate, Aadhaar seeding, and Valid Passport.
-- Provides actionable diagnostic results (`Eligible`, `Conditionally Eligible`, `Ineligible`, `Incomplete Profile`).
+  - **Income Ceilings:** ₹2.50L (Pre/Post-Matric) vs ₹6.00L (Top Class, NOS); NFST has no income ceiling per fellowship guidelines.
+  - **Educational & Institutional Fit:** School, college, 265 notified premier institutions, M.Phil/Ph.D research, top 500 QS foreign universities.
+  - **Document Completeness:** Caste Certificate, Income Certificate, Aadhaar seeding, Valid Passport.
+- Results: `Eligible`, `Conditionally Eligible`, `Ineligible`, `Incomplete Profile`.
 
-### 3. 📊 Consolidated Dashboard (`features/dashboard`)
-- Unified interface displaying ongoing scholarship cycles, key deadlines, active application statuses, and urgent notices.
-- Personalized scholarship recommendations based on student profile attributes.
+### 3. 📊 Consolidated Dashboard (`features/dashboard`) `✅`
+- Unified interface: ongoing scholarship cycles, key deadlines, active statuses, urgent notices.
+- Personalized recommendations based on student profile.
 
-### 4. 📝 Applications & Lifecycle Tracking (`features/applications`)
-- Intuitive step-by-step application submission workflow.
-- Granular tracking with timeline milestones: `Draft` ➔ `Submitted` ➔ `Institute Verified` ➔ `State Approved` ➔ `Sanctioned` ➔ `Disbursed`.
+### 4. 📝 Applications & Lifecycle Tracking (`features/applications`) `✅`
+- Step-by-step application submission workflow.
+- Uniqueness guard blocks duplicate concurrent active applications.
+- Granular stepper: `Draft` ➔ `Submitted` ➔ `Institute Verified` ➔ `State Approved` ➔ `Sanctioned` ➔ `Disbursed`.
+- Linking an existing external application: `🔲 Roadmap`.
 
-### 5. 💳 DBT & Disbursement Monitoring (`features/disbursements`)
-- Transparent tracking of financial disbursements, transaction IDs, payment batch numbers, and PFMS reconciliation.
-- Direct Aadhaar-seeded bank account status validation.
+### 5. 💳 DBT & Disbursement Monitoring (`features/disbursements`) `🟡 Simulated`
+- Transparent stage-by-stage tracking model with transaction IDs and PFMS batch numbers.
+- Current build uses seeded demo data; live Firestore queries are wired but untested against a real project.
 
-### 6. 🤖 Support Chatbot & Helpdesk (`features/chatbot`)
-- Integrated automated chatbot for instantaneous assistance regarding criteria, guidelines, and document prerequisites.
-- Offline-ready FAQ knowledge base stored natively (`assets/faq/faq.json`).
+### 6. 🤖 Support Chatbot & Helpdesk (`features/chatbot`) `✅`
+- Offline-ready FAQ knowledge base (`assets/faq/faq.json`) with context-aware answers.
+- Gemini AI mode (real API calls) active only when `--dart-define=GEMINI_API_KEY=…` is provided at build time.
+- UI falls back gracefully to FAQ answers when the key is absent.
 
 ### 7. 📁 Secure Document Management (`features/documents`)
-- DigiLocker integration and digital vault for paperless verification.
-- Encrypted storage uploads via Firebase Storage with file integrity validation.
+- **File upload with SHA-256 integrity check** `✅` — 2 MB limit, PDF/JPG/PNG; `LiveDocumentsRepository` uploads bytes to Firebase Storage via `putData()` and stores the download URL.
+- **DigiLocker integration** `🟡 Simulated` — `syncDigiLocker()` in mock mode returns in-memory seed documents; live mode throws `UnimplementedError` (needs MoTA API credentials). The UI shows a "Sync DigiLocker" button and clearly notes demo behaviour.
+- **Encrypted storage** `🔲 Roadmap` — no encryption is applied. SHA-256 is a client-side integrity hash, not encryption. Planned for a future sprint.
+
+### 8. 🔐 Authentication & Routing (`features/auth`, `core/routing`) `✅`
+- Firebase Phone Auth OTP flow.
+- GoRouter `redirect` callback: unauthenticated users → `/login`; authenticated users on `/login` or `/splash` → `/dashboard`.
+- Demo "Continue as Guest" creates an in-memory session.
+
+### 9. 🌐 Multi-Source Verification Layer (`features/verification`) `🟡 Simulated`
+- Mock providers for DigiLocker, UIDAI eKYC, AISHE, UDISE+, APAAR, UGC-NTA, NSP, PFMS, StateEDistrict — all return deterministic demo data clearly flagged `isSimulated: true` in the UI ("DEMO MODE" banner; "No real connection to UIDAI, DigiLocker…" notice).
+- Live stubs throw `UnimplementedError('needs MoTA API credentials')`.
+
+### 10. 🔔 Push Notifications (`features/notifications`) `🔲 Roadmap`
+- `firebase_messaging` is listed in `pubspec.yaml` but is **not wired** — `FirebaseMessaging` is never imported or called in the codebase. Notification data model and UI list screen exist but are fed from Firestore only.
+
+### 11. 🗄️ Offline Caching — Hive `🔲 Roadmap`
+- `hive` and `hive_flutter` are dependencies; `Hive.initFlutter()` is called in `main.dart`.
+- **No Hive boxes are opened and no data is stored via Hive** anywhere in the codebase. Offline persistence is planned for a future sprint.
 
 ---
 
@@ -118,16 +142,18 @@ USMA implements accurate data modeling, statutory rule verification, and portal 
                  ▼                                ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Data & Domain Services                      │
-│        Repository Pattern • DTO Mappings • Local Cache Engine   │
+│        Repository Pattern · DTO Mappings · Error Mapping        │
 └────────────────┬───────────────────────────────┬────────────────┘
                  │                               │
-         ┌───────┴───────┐               ┌───────┴───────┐
-         ▼               ▼               ▼               ▼
-┌─────────────────┐ ┌─────────┐ ┌─────────────────┐ ┌───────────┐
-│ Cloud Firestore │ │ Firebase│ │ Firebase Cloud  │ │   Hive    │
-│ (NoSQL Database)│ │ Storage │ │ Messaging (FCM) │ │ (Offline) │
-└─────────────────┘ └─────────┘ └─────────────────┘ └───────────┘
+         ┌───────┴───────┐               ┌───────┴──────────────┐
+         ▼               ▼               ▼                      ▼
+┌─────────────────┐ ┌─────────┐ ┌──────────────────┐  ┌──────────────────────┐
+│ Cloud Firestore │ │Firebase │ │ SharedPreferences │  │ Hive (init only;     │
+│ (NoSQL Database)│ │ Storage │ │ (language/theme)  │  │ 🔲 caching roadmap)  │
+└─────────────────┘ └─────────┘ └──────────────────┘  └──────────────────────┘
 ```
+
+> **FCM** (`firebase_messaging` dependency) is not yet wired. **Cloud Functions** (`functions/` directory) do not exist yet.
 
 ---
 
@@ -136,99 +162,115 @@ USMA implements accurate data modeling, statutory rule verification, and portal 
 ```plaintext
 usma/
 ├── android/                   # Native Android configuration & Gradle build scripts
-├── assets/                    # Static assets, fonts, and offline FAQ schemas
-│   └── faq/
-│       └── faq.json           # Offline-accessible FAQ database
+├── assets/
+│   ├── faq/
+│   │   └── faq.json           # Offline-accessible FAQ database (used by chatbot)
+│   └── data/
+│       └── schemes.json       # MoTA scheme definitions
 ├── lib/
-│   ├── main.dart              # Application entry point & service initialization
-│   ├── app.dart               # Root MaterialApp configuration & theme setup
-│   ├── core/                  # Core abstractions and shared utilities
-│   │   ├── network/           # Connectivity listeners & HTTP clients
-│   │   ├── router/            # GoRouter navigation paths & guards
-│   │   ├── theme/             # Color tokens, typography, and component themes
-│   │   └── utils/             # Formatters, validators, and helper utilities
-│   └── features/              # Feature-driven modular architecture
-│       ├── applications/      # Scholarship application workflows
-│       ├── auth/              # Authentication & session controllers
-│       ├── chatbot/           # Interactive virtual assistant & FAQ engine
+│   ├── main.dart              # App entry point & Firebase / Hive init
+│   ├── app.dart               # Root MaterialApp + locale wiring
+│   ├── core/
+│   │   ├── routing/           # GoRouter config with auth redirect
+│   │   ├── theme/             # Color tokens, typography, component themes
+│   │   ├── localization/      # AppLocalization (EN / HI / OR strings)
+│   │   └── constants/         # AppConstants (file limits, allowed types)
+│   └── features/
+│       ├── applications/      # Scholarship application workflows + uniqueness guard
+│       ├── auth/              # OTP auth, splash, eKYC, session provider
+│       ├── chatbot/           # FAQ engine + optional Gemini AI
 │       ├── dashboard/         # Single-view student dashboard
-│       ├── disbursements/     # DBT tracking & transaction history
-│       ├── documents/         # Secure document upload & vault
-│       ├── eligibility/       # Rule-based eligibility assessment
-│       ├── notifications/     # FCM push notifications & inbox
-│       ├── profile/           # Student profile & academic background
-│       └── settings/          # Language preferences & user settings
-├── firestore.rules            # Firestore security rules
-├── firestore.indexes.json      # Database compound indexes
-├── firebase.json              # Firebase project configuration
-└── pubspec.yaml               # Project dependencies and environment specs
+│       ├── disbursements/     # DBT tracking & transaction model
+│       ├── documents/         # Upload service (SHA-256), Storage repo, DigiLocker stub
+│       ├── eligibility/       # MoTAEligibilityEngine (pure Dart, statutory rules)
+│       ├── notifications/     # Notification model & UI (FCM not yet wired)
+│       ├── profile/           # Student profile screen
+│       ├── settings/          # Language (SharedPreferences) + dark mode
+│       └── verification/      # 9 mock government-system providers (isSimulated: true)
+├── test/                      # 74 unit & widget tests (all passing)
+├── docs/
+│   ├── PLAN_PROMPT1.md        # Original planning document (see staleness note at top)
+│   └── PROGRESS.md            # Authoritative current state tracker
+├── firestore.rules            # Firestore security rules (student-scoped)
+├── firestore.indexes.json     # Compound indexes
+├── firebase.json              # Firebase config (Firestore + emulators only)
+├── LICENSE                    # MIT License
+└── pubspec.yaml               # Dependencies & asset declarations
 ```
 
 ---
 
 ## ⚙️ Installation & Setup
 
-### 1. Prerequisites
+### Prerequisites
 - **Flutter SDK:** `>= 3.19.0` (Dart SDK `>= 3.3.0 < 4.0.0`)
 - **Android SDK:** Compile SDK `36`, Minimum SDK `21`
-- **Java Development Kit (JDK):** OpenJDK 17 or 21
-- **Firebase CLI:** Installed and logged in (`npm install -g firebase-tools`)
+- **Java Development Kit:** OpenJDK 17 or 21
+- **Firebase CLI:** `npm install -g firebase-tools` (for Firestore deploy/emulator only)
 
-### 2. Clone the Repository
+### Clone & Install
 ```bash
 git clone <YOUR_REPOSITORY_URL>
 cd usma
-```
-
-### 3. Install Dependencies
-```bash
 flutter pub get
 ```
 
-### 4. Firebase Configuration
+### Firebase Configuration
 1. Place your `google-services.json` inside `android/app/`.
-2. Ensure Firebase services (Auth, Firestore, Storage, Cloud Messaging) are activated in your Firebase Console.
+2. Activate **Auth**, **Firestore**, and **Storage** in your Firebase Console.
 3. Deploy Firestore rules and indexes:
    ```bash
    firebase deploy --only firestore
    ```
+   > **Note:** `firebase.json` currently configures Firestore and the Auth/Firestore emulators only. Storage rules (`storage.rules`) and Cloud Functions (`functions/`) are not yet implemented and have been removed from `firebase.json` to prevent deploy errors.
 
-### 5. Run the Application
+### Run
 ```bash
-# Debug run on connected Android device or emulator
+# Debug — no Gemini AI (FAQ-only chatbot)
 flutter run
+
+# Debug — with Gemini AI chatbot
+flutter run --dart-define=GEMINI_API_KEY=your_key_here
 ```
 
 ---
 
-## 📱 APK Release & Testing
+## 📱 Build & Testing
 
-To generate an optimized release APK for testing and deployment:
+### Run Tests
+```bash
+flutter test          # 74 tests, all passing
+flutter analyze       # 0 errors, 0 warnings
+```
 
+### Build Release APK
 ```bash
 flutter build apk --release
-```
-The compiled APK will be generated at:
-```plaintext
-build/app/outputs/flutter-apk/app-release.apk
+# Output: build/app/outputs/flutter-apk/app-release.apk
 ```
 
-*(Pre-built release package `usma-release.apk` is available in the root directory and attached to GitHub Releases for direct installation).*
+> No pre-built APK is included in this repository. Build from source using the steps above.
 
 ---
 
 ## 🎯 SIH Compliance Verification
 
-- [x] **Unified MoTA Scholarship View:** Consolidated visibility over pre-matric, post-matric, and higher education ST schemes.
-- [x] **Transparent DBT Disbursement Tracking:** Step-wise audit trail from institutional sanctioning to bank transfer.
-- [x] **Offline-First Resilience:** In-memory & local persistent storage via Hive for students with intermittent remote connectivity.
-- [x] **Automated Eligibility Evaluation:** Interactive criteria verification reducing administrative overhead.
-- [x] **Digital Document Repository:** Secure paperless credential submission with integrity checks.
-- [x] **Multilingual & Conversational Support:** Integrated AI chatbot with offline FAQ fallbacks for intuitive user onboarding.
+| Requirement | Status | Notes |
+|---|---|---|
+| **Unified MoTA Scholarship View** | `✅` | All 5 schemes; consolidated dashboard |
+| **Automated Eligibility Evaluation** | `✅` | `MoTAEligibilityEngine` — statutory rules, income ceilings, institutional fit |
+| **Transparent DBT Disbursement Tracking** | `🟡 Simulated` | Stage model implemented; seeded demo data in current build |
+| **Digital Document Repository** | `✅` | SHA-256 upload + Firebase Storage; DigiLocker is `🟡 Simulated` |
+| **Multilingual Support** | `✅` | EN / हिन्दी / ଓଡ଼ିଆ wired app-wide; chatbot FAQ in all three |
+| **Conversational AI Support** | `✅ / 🟡` | Offline FAQ always present; Gemini AI active with API key |
+| **Offline-First Resilience** | `🔲 Roadmap` | Hive initialised but no boxes opened; SharedPreferences persists settings only |
+| **Push Notifications (FCM)** | `🔲 Roadmap` | Dependency present; `FirebaseMessaging` not yet imported or called |
+| **Secure Auth & Route Guards** | `✅` | Firebase OTP; GoRouter redirect; session provider |
+| **Government Integration Verification** | `🟡 Simulated` | 9 mock providers clearly labelled; live stubs throw `UnimplementedError` |
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the LICENSE file for details.  
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.  
 Developed with ❤️ for the **Smart India Hackathon (SIH 2026)**.
