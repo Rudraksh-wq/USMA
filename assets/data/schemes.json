@@ -9,7 +9,11 @@
       "shortName": "Pre-Matric ST",
       "description": "Centrally sponsored scholarship scheme to support education of Scheduled Tribe students studying in Class IX and X to minimize drop-out rates and enhance participation in secondary education.",
       "targetEducationLevel": "Pre-Matric (Class IX & X)",
-      "targetEducationLevels": ["Pre-Matric", "Class 9", "Class 10"],
+      "targetEducationLevels": [
+        "Pre-Matric",
+        "Class 9",
+        "Class 10"
+      ],
       "whoCanApply": "ST students studying full-time in Classes IX & X in Government or recognized schools.",
       "eligibilityCriteria": [
         "Applicant must belong to a recognized Scheduled Tribe (ST) community.",
@@ -103,7 +107,15 @@
         "nodalEmail": "tribal-scholarship@gov.in",
         "helplineNumber": "0120-6619540",
         "division": "Scholarship Division, Ministry of Tribal Affairs, Shastri Bhawan, New Delhi"
-      }
+      },
+      "sourceSystem": "NSP",
+      "domicileRequirement": "VERIFY: Must be a resident of the applying State/UT as per tribal.nic.in guidelines",
+      "disabilityProvisions": "VERIFY: Special grant and transport assistance for disabled ST students",
+      "pvtgProvisions": "VERIFY: Priority coverage for PVTG students under PM-JANMAN mission",
+      "minMarksPercentage": null,
+      "maxAge": null,
+      "netJrfRequired": false,
+      "admissionAbroadRequired": false
     },
     {
       "schemeId": "post_matric_st",
@@ -111,7 +123,17 @@
       "shortName": "Post-Matric ST",
       "description": "Centrally sponsored scholarship scheme to provide financial assistance to Scheduled Tribe students studying at post-matriculation or post-secondary stages up to doctoral levels.",
       "targetEducationLevel": "Post-Matric (Class XI to Ph.D)",
-      "targetEducationLevels": ["Post-Matric", "Class 11", "Class 12", "ITI", "Diploma", "Graduation", "Post-Graduation", "M.Phil", "Ph.D"],
+      "targetEducationLevels": [
+        "Post-Matric",
+        "Class 11",
+        "Class 12",
+        "ITI",
+        "Diploma",
+        "Graduation",
+        "Post-Graduation",
+        "M.Phil",
+        "Ph.D"
+      ],
       "whoCanApply": "ST students pursuing recognized post-matriculation or post-secondary courses in recognized colleges/universities.",
       "eligibilityCriteria": [
         "Applicant must belong to a recognized Scheduled Tribe (ST) community.",
@@ -207,7 +229,15 @@
         "nodalEmail": "tribal-scholarship@gov.in",
         "helplineNumber": "0120-6619540",
         "division": "Scholarship Division, Ministry of Tribal Affairs, New Delhi"
-      }
+      },
+      "sourceSystem": "NSP",
+      "domicileRequirement": "VERIFY: Domicile certificate of respective State/UT required per MoTA rules",
+      "disabilityProvisions": "VERIFY: Additional escort, reader, and transport allowances for PwD ST students",
+      "pvtgProvisions": "VERIFY: Priority sanctioning for Particularly Vulnerable Tribal Groups (PVTG)",
+      "minMarksPercentage": null,
+      "maxAge": null,
+      "netJrfRequired": false,
+      "admissionAbroadRequired": false
     },
     {
       "schemeId": "top_class_st",
@@ -215,7 +245,16 @@
       "shortName": "Top Class ST",
       "description": "Central Sector scholarship scheme aimed at encouraging meritorious ST students to pursue studies in premier higher education institutions across India notified by the Ministry of Tribal Affairs.",
       "targetEducationLevel": "Higher Education (Notified Premier Institutes)",
-      "targetEducationLevels": ["Higher Education", "Degree", "Undergraduate", "Postgraduate", "B.Tech", "MBBS", "MBA", "LL.B"],
+      "targetEducationLevels": [
+        "Higher Education",
+        "Degree",
+        "Undergraduate",
+        "Postgraduate",
+        "B.Tech",
+        "MBBS",
+        "MBA",
+        "LL.B"
+      ],
       "whoCanApply": "ST students who have secured admission into one of the 265 MoTA-notified premier institutions (such as IITs, NITs, IIMs, AIIMS, NLUs, etc.).",
       "eligibilityCriteria": [
         "Applicant must belong to a recognized Scheduled Tribe (ST) community.",
@@ -312,7 +351,15 @@
         "nodalEmail": "topclass-tribal@nic.in",
         "helplineNumber": "0120-6619540",
         "division": "Top Class Scholarship Cell, Ministry of Tribal Affairs, New Delhi"
-      }
+      },
+      "sourceSystem": "NSP",
+      "domicileRequirement": "VERIFY: Citizen of India belonging to Scheduled Tribe category",
+      "disabilityProvisions": "VERIFY: Special assistive aids and computer accessories for Divyang students",
+      "pvtgProvisions": "VERIFY: Dedicated priority allocation within institute quota",
+      "minMarksPercentage": null,
+      "maxAge": null,
+      "netJrfRequired": false,
+      "admissionAbroadRequired": false
     },
     {
       "schemeId": "nfst",
@@ -320,7 +367,12 @@
       "shortName": "National Fellowship (NFST)",
       "description": "Central Sector fellowship scheme providing financial support to meritorious Scheduled Tribe candidates to pursue regular and full-time M.Phil and Ph.D degrees in Indian Universities and Research Institutions.",
       "targetEducationLevel": "Research (M.Phil & Ph.D)",
-      "targetEducationLevels": ["Research", "M.Phil", "Ph.D", "Doctorate"],
+      "targetEducationLevels": [
+        "Research",
+        "M.Phil",
+        "Ph.D",
+        "Doctorate"
+      ],
       "whoCanApply": "ST candidates who have registered / secured admission in regular full-time M.Phil / Ph.D courses in UGC-recognized universities or institutes of national importance.",
       "eligibilityCriteria": [
         "Applicant must belong to a recognized Scheduled Tribe (ST) community.",
@@ -418,7 +470,15 @@
         "nodalEmail": "fellowship-tribal@nic.in",
         "helplineNumber": "011-23386128",
         "division": "Fellowship Unit, Ministry of Tribal Affairs, Shastri Bhawan, New Delhi"
-      }
+      },
+      "sourceSystem": "SFMP",
+      "domicileRequirement": "VERIFY: Citizen of India belonging to recognized ST community",
+      "disabilityProvisions": "VERIFY: 5% fellowship slots reserved for Divyangjan ST scholars",
+      "pvtgProvisions": "VERIFY: Dedicated priority fellowship slots for PVTG researchers",
+      "minMarksPercentage": 50.0,
+      "maxAge": null,
+      "netJrfRequired": true,
+      "admissionAbroadRequired": false
     },
     {
       "schemeId": "nos",
@@ -426,7 +486,12 @@
       "shortName": "National Overseas (NOS)",
       "description": "Central Sector scholarship scheme providing financial assistance to selected ST candidates for pursuing Master level courses, Ph.D and Post-Doctoral research programmes abroad in accredited foreign universities.",
       "targetEducationLevel": "Overseas Studies (Master's & Ph.D Abroad)",
-      "targetEducationLevels": ["Overseas", "Master's Abroad", "Ph.D Abroad", "Post-Doctoral"],
+      "targetEducationLevels": [
+        "Overseas",
+        "Master's Abroad",
+        "Ph.D Abroad",
+        "Post-Doctoral"
+      ],
       "whoCanApply": "ST students who have gained unconditional admission into top 500 QS World University Ranked foreign institutions for Master's or Ph.D.",
       "eligibilityCriteria": [
         "Applicant must belong to a recognized Scheduled Tribe (ST) community.",
@@ -524,7 +589,15 @@
         "nodalEmail": "overseas-tribal@nic.in",
         "helplineNumber": "011-23386128",
         "division": "Overseas Scholarship Division, Ministry of Tribal Affairs, New Delhi"
-      }
+      },
+      "sourceSystem": "NOS",
+      "domicileRequirement": "VERIFY: Citizen of India with valid Indian Passport",
+      "disabilityProvisions": "VERIFY: Horizontal consideration under MoTA overseas fellowship norms",
+      "pvtgProvisions": "VERIFY: 3 out of 20 total annual overseas slots reserved for PVTG candidates",
+      "minMarksPercentage": 55.0,
+      "maxAge": 35,
+      "netJrfRequired": false,
+      "admissionAbroadRequired": true
     }
   ]
 }

@@ -206,10 +206,17 @@ class _SchemesScreenState extends ConsumerState<SchemesScreen> {
         icon = Icons.highlight_off;
         break;
       case EligibilityStatus.incompleteProfile:
+      case EligibilityStatus.needsInfo:
         bg = AppColors.surfaceVariant;
         text = AppColors.textSecondary;
         label = 'Check Needed';
         icon = Icons.help_outline;
+        break;
+      case EligibilityStatus.blockedByExistingAward:
+        bg = Colors.deepOrange.withValues(alpha: 0.15);
+        text = Colors.deepOrange;
+        label = 'Award Active';
+        icon = Icons.block;
         break;
     }
 

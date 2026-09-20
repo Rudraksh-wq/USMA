@@ -5,51 +5,133 @@ class MoTAEligibilityEngine {
   static const double prePostMatricIncomeCeiling = 250000.0;
   static const double higherEduResearchOverseasIncomeCeiling = 600000.0;
 
+  /// Main entry point: evaluates a student profile and existing awards across schemes
+  static List<SchemeEligibilityEvaluation> evaluate(
+    StudentEligibilityProfile profile,
+    List<ExistingAward> existingAwards, {
+    List<MotaSchemeModel> schemes = const [],
+  }) {
+    return schemes
+        .map((s) => evaluateScheme(
+              profile: profile,
+              scheme: s,
+              existingAwards: existingAwards,
+            ))
+        .toList();
+  }
+
+  /// Backward compatible helper
+  static List<SchemeEligibilityEvaluation> evaluateAllSchemes({
+    required StudentEligibilityProfile profile,
+    required List<MotaSchemeModel> schemes,
+    List<ExistingAward> existingAwards = const [],
+  }) {
+    return evaluate(profile, existingAwards, schemes: schemes);
+  }
+
   /// Evaluates student profile against a single MoTA scheme based on authentic government rules.
   static SchemeEligibilityEvaluation evaluateScheme({
     required StudentEligibilityProfile profile,
     required MotaSchemeModel scheme,
+    List<ExistingAward> existingAwards = const [],
   }) {
     final passed = <String>[];
     final failed = <String>[];
     final missingDocs = <String>[];
+    final missingFields = <String>[];
+    final reasonKeys = <String>[];
     final pendingActions = <String>[];
 
-    // 1. Incomplete profile check
-    if (!profile.hasCompleteBasicProfile) {
+    int satisfiedCount = 0;
+    int totalCount = 0;
+
+    // -------------------------------------------------------------------------
+    // 0. Profile Completeness Verification
+    // -------------------------------------------------------------------------
+    if (profile.socialCategory == null) {
+      missingFields.add('Social Category (ST/PVTG)');
+    }
+    if (profile.familyAnnualIncome == null) {
+      missingFields.add('Family Annual Income');
+    }
+    if (profile.educationLevel == null) {
+      missingFields.add('Education Level / Class');
+    }
+
+    if (missingFields.isNotEmpty) {
       return SchemeEligibilityEvaluation(
         schemeId: scheme.schemeId,
         schemeName: scheme.schemeName,
         status: EligibilityStatus.incompleteProfile,
         isEligible: false,
         passedCriteria: const [],
-        failedCriteria: const ['Incomplete profile details (Income, Caste Category, or Education Level missing)'],
+        failedCriteria: [
+          'Incomplete profile details (${missingFields.join(', ')} missing)',
+        ],
         missingDocuments: const [],
+        missingProfileFields: missingFields,
         pendingActions: const ['Complete your student profile to evaluate eligibility.'],
         recommendation: 'Please provide complete income, category, and education details in your profile.',
+        rulesSatisfied: 0,
+        rulesTotal: 4,
+        ruleReasonKeys: const ['rule_incomplete_profile'],
       );
     }
 
-    // 2. ST Community verification (Mandatory across all 5 MoTA schemes)
-    final isSt = (profile.socialCategory == 'ST' ||
-            profile.socialCategory == 'PVTG' ||
-            profile.isScheduledTribe == true);
-    if (!isSt) {
-      failed.add('Only candidates belonging to recognized Scheduled Tribe (ST) communities are eligible for MoTA schemes.');
-    } else {
-      passed.add('Belongs to recognized Scheduled Tribe (ST) community.');
+    // -------------------------------------------------------------------------
+    // 1. One-Scholarship-at-a-Time Verification
+    // -------------------------------------------------------------------------
+    // A student cannot avail more than one centrally funded scholarship at once.
+    ExistingAward? conflictingAward;
+    for (final award in existingAwards) {
+      final isCurrentOrActive = award.status.toLowerCase() == 'active' ||
+          award.status.toLowerCase() == 'sanctioned' ||
+          award.status.toLowerCase() == 'disbursed';
+      if (isCurrentOrActive && award.schemeId != scheme.schemeId) {
+        conflictingAward = award;
+        break;
+      }
     }
 
+    // -------------------------------------------------------------------------
+    // 2. ST / PVTG Community Verification
+    // -------------------------------------------------------------------------
+    totalCount++;
+    final isSt = (profile.socialCategory == 'ST' ||
+        profile.socialCategory == 'PVTG' ||
+        profile.isScheduledTribe == true);
+    if (!isSt) {
+      failed.add('Only candidates belonging to recognized Scheduled Tribe (ST) communities are eligible for MoTA schemes.');
+      reasonKeys.add('rule_failed_st_community');
+    } else {
+      satisfiedCount++;
+      passed.add('Belongs to recognized Scheduled Tribe (ST) community.');
+      reasonKeys.add('rule_passed_st_community');
+    }
+
+    // -------------------------------------------------------------------------
     // 3. Income Ceiling Rule
+    // -------------------------------------------------------------------------
+    totalCount++;
     final double schemeMaxIncome = scheme.incomeLimit.maxFamilyIncome;
     final double income = profile.familyAnnualIncome!;
     if (income > schemeMaxIncome) {
-      failed.add('Annual family income (₹${income.toStringAsFixed(0)}) exceeds scheme ceiling of ₹${schemeMaxIncome.toStringAsFixed(0)} (${scheme.incomeLimit.formattedLimit}).');
+      failed.add(
+        'Annual family income (₹${income.toStringAsFixed(0)}) exceeds scheme ceiling of ₹${schemeMaxIncome.toStringAsFixed(0)} (${scheme.incomeLimit.formattedLimit}).',
+      );
+      reasonKeys.add('rule_failed_income_ceiling');
     } else {
-      passed.add('Family annual income (₹${income.toStringAsFixed(0)}) is within the eligible limit of ${scheme.incomeLimit.formattedLimit}.');
+      satisfiedCount++;
+      passed.add(
+        'Family annual income (₹${income.toStringAsFixed(0)}) is within the eligible limit of ${scheme.incomeLimit.formattedLimit}.',
+      );
+      reasonKeys.add('rule_passed_income_ceiling');
     }
 
+    // -------------------------------------------------------------------------
     // 4. Scheme-Specific Education Level and Institutional Rules
+    // -------------------------------------------------------------------------
+    totalCount++;
     final eduLevel = (profile.educationLevel ?? '').trim().toLowerCase();
     final course = (profile.currentClassOrDegree ?? '').trim().toLowerCase();
     final instType = profile.institutionType ?? 'REGULAR_RECOGNIZED';
@@ -67,8 +149,11 @@ class MoTAEligibilityEngine {
             course.contains('x');
         if (!isPreMatric) {
           failed.add('Pre-Matric scholarship is strictly applicable for Class IX and Class X students only.');
+          reasonKeys.add('rule_failed_pre_matric_level');
         } else {
+          satisfiedCount++;
           passed.add('Enrolled in regular Class IX or Class X.');
+          reasonKeys.add('rule_passed_pre_matric_level');
         }
         break;
 
@@ -92,8 +177,11 @@ class MoTAEligibilityEngine {
             course.contains('ph.d');
         if (!isPostMatric || eduLevel.contains('pre-matric')) {
           failed.add('Post-Matric scholarship is applicable for students pursuing Class XI up to Ph.D in recognized institutions.');
+          reasonKeys.add('rule_failed_post_matric_level');
         } else {
+          satisfiedCount++;
           passed.add('Enrolled in recognized Post-Matric / Post-Secondary course.');
+          reasonKeys.add('rule_passed_post_matric_level');
         }
         break;
 
@@ -114,13 +202,20 @@ class MoTAEligibilityEngine {
             course.contains('nlu');
         if (!isHigherEdu) {
           failed.add('Top Class scholarship requires enrollment in notified undergraduate or postgraduate professional degree courses.');
+          reasonKeys.add('rule_failed_top_class_course');
         } else {
           passed.add('Enrolled in recognized professional higher education degree.');
+          reasonKeys.add('rule_passed_top_class_course');
         }
         if (!isPremierInst && instType != 'PREMIER_NOTIFIED') {
           failed.add('Top Class scheme requires admission in one of the 265 MoTA-notified premier institutions (IITs, NITs, IIMs, AIIMS, NLUs, etc.).');
+          reasonKeys.add('rule_failed_premier_inst');
         } else {
           passed.add('Admitted in MoTA-notified Premier Higher Education Institution.');
+          reasonKeys.add('rule_passed_premier_inst');
+        }
+        if (isHigherEdu && (isPremierInst || instType == 'PREMIER_NOTIFIED')) {
+          satisfiedCount++;
         }
         break;
 
@@ -134,8 +229,23 @@ class MoTAEligibilityEngine {
             course.contains('doctorate');
         if (!isResearch) {
           failed.add('National Fellowship (NFST) is strictly for full-time regular M.Phil and Ph.D research scholars.');
+          reasonKeys.add('rule_failed_research_enrolment');
         } else {
           passed.add('Registered for regular full-time M.Phil / Ph.D research.');
+          reasonKeys.add('rule_passed_research_enrolment');
+        }
+
+        // Check NET/JRF qualification if required
+        if (scheme.netJrfRequired && !profile.hasNetJrf) {
+          failed.add('NFST requires qualification in UGC-NET / CSIR-NET or national level entrance examination.');
+          reasonKeys.add('rule_failed_net_jrf');
+        } else if (scheme.netJrfRequired) {
+          passed.add('UGC/CSIR-NET research qualification confirmed.');
+          reasonKeys.add('rule_passed_net_jrf');
+        }
+
+        if (isResearch && (!scheme.netJrfRequired || profile.hasNetJrf)) {
+          satisfiedCount++;
         }
         break;
 
@@ -144,25 +254,53 @@ class MoTAEligibilityEngine {
             eduLevel.contains('abroad') ||
             instType == 'FOREIGN_QS500' ||
             course.contains('abroad') ||
-            course.contains('overseas');
+            course.contains('overseas') ||
+            profile.hasForeignAdmission;
         if (!isOverseas) {
-          failed.add('National Overseas Scholarship (NOS) is strictly for Master\'s and Ph.D programmes at top 500 QS-ranked foreign universities.');
+          failed.add('National Overseas Scholarship (NOS) requires unconditional admission into top 500 QS-ranked foreign universities.');
+          reasonKeys.add('rule_failed_foreign_admission');
         } else {
-          passed.add('Enrolled / Admitted for Master\'s / Ph.D in foreign university.');
+          passed.add('Enrolled / Admitted for Master\'s / Ph.D in Top 500 QS foreign university.');
+          reasonKeys.add('rule_passed_foreign_admission');
         }
+
+        // Min qualifying marks
+        final minMarks = scheme.minMarksPercentage ?? 55.0;
         if (profile.qualifyingMarksPercentage != null &&
-            profile.qualifyingMarksPercentage! < 55.0) {
-          failed.add('NOS requires minimum 55% marks or equivalent grade in qualifying degree.');
+            profile.qualifyingMarksPercentage! < minMarks) {
+          failed.add('NOS requires minimum ${minMarks.toStringAsFixed(0)}% marks in qualifying degree.');
+          reasonKeys.add('rule_failed_min_marks');
         } else if (profile.qualifyingMarksPercentage != null) {
-          passed.add('Qualifying marks criteria satisfied (≥ 55%).');
+          passed.add('Qualifying marks criteria satisfied (≥ ${minMarks.toStringAsFixed(0)}%).');
+          reasonKeys.add('rule_passed_min_marks');
         }
-        if (profile.studentAge != null && profile.studentAge! >= 35) {
-          failed.add('NOS requires candidate to be below 35 years of age on 1st July of application year.');
+
+        // Age restriction
+        final maxAge = scheme.maxAge ?? 35;
+        if (profile.studentAge != null && profile.studentAge! >= maxAge) {
+          failed.add('NOS requires candidate to be below $maxAge years of age on 1st July of application year.');
+          reasonKeys.add('rule_failed_age_limit');
+        } else if (profile.studentAge != null) {
+          passed.add('Age criteria satisfied (< $maxAge years).');
+          reasonKeys.add('rule_passed_age_limit');
         }
+
+        final marksOk = profile.qualifyingMarksPercentage == null || profile.qualifyingMarksPercentage! >= minMarks;
+        final ageOk = profile.studentAge == null || profile.studentAge! < maxAge;
+        if (isOverseas && marksOk && ageOk) {
+          satisfiedCount++;
+        }
+        break;
+
+      default:
+        satisfiedCount++;
         break;
     }
 
+    // -------------------------------------------------------------------------
     // 5. Mandatory Document Verification
+    // -------------------------------------------------------------------------
+    totalCount++;
     final availableDocs = profile.availableDocumentTypes.map((d) => d.toUpperCase()).toSet();
     if (!availableDocs.contains('CASTE_CERTIFICATE') && !availableDocs.contains('ST_CERTIFICATE')) {
       missingDocs.add('Scheduled Tribe (ST) Certificate');
@@ -177,7 +315,45 @@ class MoTAEligibilityEngine {
       missingDocs.add('Valid Indian Passport');
     }
 
-    // 6. Determine Resulting Status
+    if (missingDocs.isEmpty) {
+      satisfiedCount++;
+      passed.add('All mandatory verification documents uploaded.');
+      reasonKeys.add('rule_passed_documents');
+    } else {
+      reasonKeys.add('rule_pending_documents');
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Conflicting Award Handling (Precedence Rule)
+    // -------------------------------------------------------------------------
+    if (conflictingAward != null) {
+      final conflictMsg =
+          'You have an active scholarship award under ${conflictingAward.schemeName} (${conflictingAward.sourceSystem}). Under Ministry of Tribal Affairs rules, a student can avail only one government scholarship at a time. To apply for ${scheme.shortName}, you must first surrender or complete your current award.';
+      return SchemeEligibilityEvaluation(
+        schemeId: scheme.schemeId,
+        schemeName: scheme.schemeName,
+        status: EligibilityStatus.blockedByExistingAward,
+        isEligible: false,
+        passedCriteria: passed,
+        failedCriteria: failed,
+        missingDocuments: missingDocs,
+        missingProfileFields: missingFields,
+        pendingActions: [
+          'Surrender active award under ${conflictingAward.schemeName}',
+          'Obtain No-Objection / Release Certificate from nodal officer'
+        ],
+        recommendation: conflictMsg,
+        rulesSatisfied: satisfiedCount,
+        rulesTotal: totalCount,
+        ruleReasonKeys: ['rule_blocked_existing_award', ...reasonKeys],
+        blockedByAward: conflictingAward,
+        conflictExplanation: conflictMsg,
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. Determine Resulting Status
+    // -------------------------------------------------------------------------
     if (failed.isNotEmpty) {
       return SchemeEligibilityEvaluation(
         schemeId: scheme.schemeId,
@@ -187,8 +363,12 @@ class MoTAEligibilityEngine {
         passedCriteria: passed,
         failedCriteria: failed,
         missingDocuments: missingDocs,
+        missingProfileFields: missingFields,
         pendingActions: failed,
         recommendation: 'Criteria not met for ${scheme.shortName}. Explore other MoTA schemes.',
+        rulesSatisfied: satisfiedCount,
+        rulesTotal: totalCount,
+        ruleReasonKeys: reasonKeys,
       );
     } else if (missingDocs.isNotEmpty) {
       pendingActions.add('Upload missing documents: ${missingDocs.join(', ')}');
@@ -200,8 +380,12 @@ class MoTAEligibilityEngine {
         passedCriteria: passed,
         failedCriteria: const [],
         missingDocuments: missingDocs,
+        missingProfileFields: missingFields,
         pendingActions: pendingActions,
         recommendation: 'Eligible! Upload required documents to complete verification.',
+        rulesSatisfied: satisfiedCount,
+        rulesTotal: totalCount,
+        ruleReasonKeys: reasonKeys,
       );
     } else {
       return SchemeEligibilityEvaluation(
@@ -212,17 +396,13 @@ class MoTAEligibilityEngine {
         passedCriteria: passed,
         failedCriteria: const [],
         missingDocuments: const [],
+        missingProfileFields: const [],
         pendingActions: ['Proceed to apply via ${scheme.applicationPortal.portalName}'],
         recommendation: 'Fully eligible. You can proceed with the application.',
+        rulesSatisfied: satisfiedCount,
+        rulesTotal: totalCount,
+        ruleReasonKeys: reasonKeys,
       );
     }
-  }
-
-  /// Evaluates student profile across all schemes
-  static List<SchemeEligibilityEvaluation> evaluateAllSchemes({
-    required StudentEligibilityProfile profile,
-    required List<MotaSchemeModel> schemes,
-  }) {
-    return schemes.map((s) => evaluateScheme(profile: profile, scheme: s)).toList();
   }
 }

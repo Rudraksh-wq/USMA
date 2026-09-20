@@ -263,6 +263,14 @@ class MotaSchemeModel {
   final OfficialGuidelinesInfo officialGuidelines;
   final List<SchemeFaqItem> faq;
   final GrievanceInformation grievanceInformation;
+  final String sourceSystem; // 'NSP', 'SFMP', 'NOS'
+  final String domicileRequirement;
+  final String disabilityProvisions;
+  final String pvtgProvisions;
+  final double? minMarksPercentage;
+  final int? maxAge;
+  final bool netJrfRequired;
+  final bool admissionAbroadRequired;
 
   const MotaSchemeModel({
     required this.schemeId,
@@ -282,6 +290,14 @@ class MotaSchemeModel {
     required this.officialGuidelines,
     required this.faq,
     required this.grievanceInformation,
+    this.sourceSystem = 'NSP',
+    this.domicileRequirement = 'VERIFY: Resident ST of respective State/UT',
+    this.disabilityProvisions = 'VERIFY: Provisions as per MoTA guidelines',
+    this.pvtgProvisions = 'VERIFY: Priority coverage for PVTG students',
+    this.minMarksPercentage,
+    this.maxAge,
+    this.netJrfRequired = false,
+    this.admissionAbroadRequired = false,
   });
 
   factory MotaSchemeModel.fromMap(Map<String, dynamic> map) {
@@ -386,6 +402,17 @@ class MotaSchemeModel {
       officialGuidelines: OfficialGuidelinesInfo.fromMap(guidelinesMap),
       faq: faqList,
       grievanceInformation: GrievanceInformation.fromMap(grievanceMap),
+      sourceSystem: map['sourceSystem']?.toString() ?? 'NSP',
+      domicileRequirement: map['domicileRequirement']?.toString() ??
+          'VERIFY: Resident ST of respective State/UT',
+      disabilityProvisions: map['disabilityProvisions']?.toString() ??
+          'VERIFY: Provisions as per MoTA guidelines',
+      pvtgProvisions: map['pvtgProvisions']?.toString() ??
+          'VERIFY: Priority coverage for PVTG students',
+      minMarksPercentage: (map['minMarksPercentage'] as num?)?.toDouble(),
+      maxAge: (map['maxAge'] as num?)?.toInt(),
+      netJrfRequired: map['netJrfRequired'] == true,
+      admissionAbroadRequired: map['admissionAbroadRequired'] == true,
     );
   }
 
@@ -407,5 +434,13 @@ class MotaSchemeModel {
         'officialGuidelines': officialGuidelines.toMap(),
         'faq': faq.map((e) => e.toMap()).toList(),
         'grievanceInformation': grievanceInformation.toMap(),
+        'sourceSystem': sourceSystem,
+        'domicileRequirement': domicileRequirement,
+        'disabilityProvisions': disabilityProvisions,
+        'pvtgProvisions': pvtgProvisions,
+        'minMarksPercentage': minMarksPercentage,
+        'maxAge': maxAge,
+        'netJrfRequired': netJrfRequired,
+        'admissionAbroadRequired': admissionAbroadRequired,
       };
 }
